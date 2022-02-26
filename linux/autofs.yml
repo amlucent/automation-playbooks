@@ -1,6 +1,6 @@
 #!/bin/ansible-playbook
 ---
-- name: Luc3.net autofs Playbook
+- name: "##### Configure autofs on Linux host to automount NAS shares #####"
   hosts: ubuntu:rhel
   become: yes
   become_user: root
