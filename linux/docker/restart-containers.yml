@@ -1,6 +1,6 @@
 #!/bin/ansible-playbook
 ---
-- name: "##### Restart all Luc3nt download containers #####"
+- name: "##### Restart all download containers #####"
   hosts: '{{target|default("unraid")}}'
   gather_facts: False
   #become: yes
