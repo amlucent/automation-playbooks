@@ -1,0 +1,18 @@
+#!/bin/ansible-playbook
+---
+- hosts: "windows"
+  tasks:
+  - name: Install all critical and security updates
+    win_updates:
+      category_names:
+      - CriticalUpdates
+      - SecurityUpdates
+      - UpdateRollups
+      state: installed
+      blacklist:
+      - Windows Malicious Software Removal Tool for Windows
+    register: update_result
+
+  - name: reboot host if required
+    win_reboot:
+    when: update_result.reboot_required
