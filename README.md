@@ -13,3 +13,5 @@ All ansible modules required can be installed by running the below playbook on y
 linux/all-linux-ansible-install.yml
 ```
 
+### Variables
+all my ansible playbook variables called out in these scripts should be defined and stored in vars file or even in your ansible inventory file.  
