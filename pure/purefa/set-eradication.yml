@@ -1,0 +1,20 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Sets minimum Volume eradication timer for FlashArray #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+      # Set eradication timer on FlashArrays
+    - name: Set eradication timer to 7 days
+      delegate_to: localhost
+      purestorage.flasharray.purefa_eradication:
+        timer: 7
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+
+    # - name: Set eradication timer to 1 day
+    #   delegate_to: localhost  
+    #   purestorage.flasharray.purefa_eradication:
+    #     fa_url: "{{ fa_url }}"
+    #     api_token: "{{ fa_token }}"

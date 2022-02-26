@@ -1,0 +1,38 @@
+#!/bin/ansible-playbook
+# ansible-playbook get-host-mappings.yaml --limit GW-PSFA-01ARU13 -v -e "hostname=ansible-host"
+---
+- name: Get all mapped volume information for a single host in a FlashArray
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: no
+  vars_prompt:
+    - name: hostname
+      prompt: "What is the host's name? (example: ansible-host01)"
+      private: no
+
+  tasks:
+    - name: open RestAPI session
+      delegate_to: localhost
+      uri:
+        url: https://{{ fa_url }}/api/{{ api_version }}/auth/session
+        method: POST
+        validate_certs: no
+        return_content: yes
+        body:
+          api_token: "{{ array_token }}"
+        body_format: json
+      register: session
+
+    - name: show host volume attachments
+      delegate_to: localhost
+      uri:
+        url: https://{{ fa_url }}/api/{{ api_version }}/host/{{ hostname }}/volume
+        method: GET
+        validate_certs: no
+        HEADER_Cookie: "{{session.set_cookie}}"
+        return_content: yes
+      ignore_errors: yes
+      register: attached_volumes
+ 
+    - name: show attached volumes data
+      debug: msg="{{ attached_volumes.json }}"
+      delegate_to: localhost

@@ -1,0 +1,27 @@
+#!/bin/ansible-playbook
+---
+
+- name: "##### Configure a new FlashArray from scratch #####"
+  hosts: '{{target|default("purefa")}}'
+  become: yes
+  become_user: root
+  gather_facts: no
+
+  tasks:
+    - name: display token alternate
+      raw: "pureadmin list {{ var_pureuser }} --api-token --expose"
+
+- import_playbook: set-arrayname.yml
+# - import_playbook: set-eula.yml
+- import_playbook: set-phonehome.yml
+- import_playbook: set-banner.yml
+- import_playbook: set-dns.yml
+- import_playbook: set-ntp.yml
+- import_playbook: set-smtp.yml
+- import_playbook: set-syslog.yml
+# - import_playbook: set-snmp.yml
+- import_playbook: set-dsrole.yml
+- import_playbook: set-directory.yml
+# - import_playbook: set-eradication.yml
+# - import_playbook: set-sslcert.yml
+- import_playbook: create-users.yml

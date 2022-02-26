@@ -1,0 +1,28 @@
+#!/bin/ansible-playbook
+---
+- name: Create token for Pure Storage
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: no
+  vars:
+    api_version: "1.8"
+
+  tasks:
+    - name: open session
+      uri:
+        url: https://{{ fa_url }}/api/{{ api_version }}/auth/apitoken
+        method: POST
+        validate_certs: no
+        return_content: yes
+        body:
+          username: "{{ var_pureuser }}"
+          password: "{{ var_pureuser_pwd }}"
+        body_format: json
+      register: token
+      deligate_to: localhost
+
+    - name: display token
+      debug: msg="{{ token.json }}"
+      deligate_to: localhost
+
+    - name: display token alternate
+      raw: "pureadmin list {{ var_pureuser }} --api-token --expose"

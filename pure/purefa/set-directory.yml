@@ -1,0 +1,80 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Configure AD domain and user settings on FlashArrays #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+#  vars_prompt:
+#    - name: ad_username
+#      prompt: "What is your AD administrator username?"
+#      private: no
+#    - name: ad_password
+#      prompt: "What is your AD administrator password?"
+#      private: yes
+
+  tasks:
+
+    # - name: Delete existing array_admin directory service role
+    #   purestorage.flasharray.purefa_dsrole:
+    #     role: array_admin
+    #     state: absent
+    #     fa_url: "{{ fa_url }}"
+    #     api_token: "{{ fa_token }}"
+    #   delegate_to: localhost
+
+    # - name: Create array_admin directory service role
+    #   purestorage.flasharray.purefa_dsrole:
+    #     role: array_admin
+    #     group_base: "{{ ldap_group_base }}"
+    #     group: "{{ ldap_adm_grp }}"
+    #     fa_url: "{{ fa_url }}"
+    #     api_token: "{{ fa_token }}"
+    #   delegate_to: localhost
+      
+    - name: Delete existing directory service
+      purestorage.flasharray.purefa_ds:
+        state: absent
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    - name: Create directory service (disabled) - 5.2.0 or higher
+      purestorage.flasharray.purefa_ds:
+        #enable: false
+        dstype: management
+        uri: "{{ ldap_url }}"
+        base_dn: "{{ ldap_base_dn }}"
+        bind_user: "{{ ldap_bind_user }}"
+        bind_password: "{{ ldap_bind_pass }}"
+        #group_base: "{{ ldap_group_base }}"
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    - name: Enable directory service - 5.2.0 or higher
+      purestorage.flasharray.purefa_ds:
+        enable: true
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    # Set Active Directory Integration for Admins
+    # - name: Fully delete AD account. Note that correct AD permissions are required
+    #   purefa_ad:
+    #     name: "{{ ansible_hostname }}"
+    #     fa_url: "{{ fa_url }}"
+    #     api_token: "{{ fa_token }}"
+    #   delegate_to: localhost
+
+    # - name: Create new AD account
+    #   purefa_ad:
+    #     name: "{{ ansible_hostname }}"
+    #     computer: "{{ ansible_hostname }}"
+    #     domain: "{{ ad_domain }}"
+    #     join_ou: "{{ ad_join_ou }}"
+    #     username: "{{ ad_username }}"
+    #     password: "{{ ad_password }}"
+    #     kerberos_servers: "{{ ad_kerberos_servers }}"
+    #     directory_servers: "{{ ad_directory_servers }}"
+    #   fa_url: "{{ fa_url }}"
+    #   api_token: "{{ fa_token }}"
+    #   delegate_to: localhost

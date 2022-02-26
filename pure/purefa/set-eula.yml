@@ -1,0 +1,16 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Signs EULA and Sets Contact information for FlashArray #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+      # Sign EULA on FlashArrays
+    - name: Sign EULA for FlashArray
+      delegate_to: localhost
+      purestorage.flasharray.purefa_eula:
+        company: "Federal Bureau of Investigation"
+        name: "Tony Lucent"
+        title: "Storage Systems Engineer"
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"

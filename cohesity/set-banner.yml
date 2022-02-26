@@ -1,0 +1,14 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Sets new Cohesity login banner #####"
+  hosts: '{{target|default("cohesity")}}'
+  gather_facts: False
+  #become: yes
+
+  tasks:
+      # Enable login banner on Cohesity's
+    - name: Enable Login Banner for Cohesity
+      shell: /home/cohesity/software/crux/bin/iris_cli -username "{{ var_cohesity_user }}" -password "{{ var_cohesity_passwd }}" cluster update-gflag gflag-name="iris_ui_flags" gflag-value="loginBanner=true" service-name=iris reason="Enable LoginBanner"
+
+    - name: Restart Cohesity cluster
+      shell: /home/cohesity/software/crux/bin/iris.sh stop && /home/cohesity/software/crux/bin/iris.sh start

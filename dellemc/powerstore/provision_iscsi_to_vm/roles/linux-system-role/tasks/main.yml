@@ -1,0 +1,6 @@
+---
+
+- include: 'setup-{{ ansible_facts.distribution | lower }}.yml'
+- include: 'add-ssh-public-keys.yml'
+- include: 'config-networks.yml'
+  when: network_interfaces is defined

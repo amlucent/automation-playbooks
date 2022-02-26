@@ -1,0 +1,28 @@
+# => Register file based protection job with windows hosts
+---
+  - hosts: local
+    gather_facts: no
+    roles:
+      - cohesity.cohesity_ansible_role
+    tasks:
+      - name: Protection job
+        include_role:
+          name: cohesity.cohesity_ansible_role
+          tasks_from: job
+        vars:
+          cohesity_server: "{{ cohesity_cluster_server }}"
+          cohesity_admin: "{{ var_cohesity_username }}"
+          cohesity_password: "{{ cohesity_cluster_password }}"
+          cohesity_validate_certs: "{{ var_validate_certs }}"
+          cohesity_protection:
+              state: present
+              job_name: "protect_vm1"
+              storage_domain: "DefaultStorageDomain"
+              sources:
+                - endpoint: "10.2.146.235"
+                  paths:
+                    - includeFilePath: "C:\\Docs"
+                      excludeFilePaths:
+                        - "C:\\Docs\\Doc2"
+                      skipNestedVolumes: False
+              environment: "PhysicalFiles"

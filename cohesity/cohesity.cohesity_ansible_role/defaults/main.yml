@@ -1,0 +1,73 @@
+---
+# defaults file for cohesity.modules
+cohesity_server:
+cohesity_admin:
+cohesity_password:
+cohesity_validate_certs: True
+
+cohesity_agent:
+  state: "present"
+  service_user: "cohesityagent"
+  service_password: ""
+  service_group: "cohesityagent"
+  create_user: True
+  download_location: ""
+  install_type: "volcbt"
+  preservesettings: False
+  reboot: False
+
+cohesity_source:
+  state: present
+  endpoint: ""
+  environment: ""
+  host_type: ""
+  vmware_type: ""
+  source_username: ""
+  source_password: ""
+  nas_protocol: ""
+  nas_username: ""
+  nas_password: ""
+
+cohesity_protection:
+  state: present
+  job_name: ""
+  endpoint: ""
+  environment: ""
+  storage_domain: DefaultIddStorageDomain
+  policy: Bronze
+  delete_backups: False
+  cancel_active: False
+
+cohesity_restore_file:
+  state: "present"
+  name: ""
+  environment: "Physical"
+  job_name: ""
+  endpoint: ""
+  backup_id: ""
+  files: ""
+  wait_for_job: True
+  wait_minutes: 10
+  overwrite: True
+  preserve_attributes: True
+  restore_location: ""
+
+cohesity_restore_vm:
+  state: present
+  name: ""
+  environment: VMware
+  job_name: ""
+  endpoint: ""
+  backup_id: ""
+  vms: ""
+  wait_for_job: ""
+  wait_minutes: 0
+  datastore_id: ""
+  datastore_folder_id: ""
+  network_connected: yes
+  network_id: ""
+  power_state: yes
+  resource_pool_id: ""
+  prefix: ""
+  suffix: ""
+  vm_folder_id: ""

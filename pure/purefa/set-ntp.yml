@@ -1,0 +1,22 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Configure NTP settings on FlashArrays #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+    # Set Time servers to maintain log accuracy
+    - name: Delete existing NTP server entries
+      purestorage.flasharray.purefa_ntp:
+        state: absent
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    - name: Set array NTP servers
+      purestorage.flasharray.purefa_ntp:
+        state: present
+        ntp_servers: "{{ ntp_servers }}"
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost

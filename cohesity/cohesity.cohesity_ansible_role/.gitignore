@@ -1,0 +1,14 @@
+.DS_Store
+.vagrant
+tmp
+*.log
+*/*.retry
+*/*.pem
+*/*.tfvars
+*/.DS_Store
+*/*.pub
+*.pub
+ansible
+*.pyc
+*/.pytest_cache
+.idea/

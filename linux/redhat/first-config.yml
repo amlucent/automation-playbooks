@@ -1,0 +1,159 @@
+#!/bin/ansible-playbook
+---
+  - name: "Basic Linux Configuration Playbook"
+    hosts: linux
+    become: yes
+    become_user: root
+    serial: 1
+    vars:
+      epel_repo_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+      epel_repo_gpg_key_url: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+      epel_repofile_path: "/etc/yum.repos.d/epel.repo"
+    tasks:
+
+      - name: "Testing Reachability of Hosts"
+        ping:
+
+      - name: "Disable SELinux"
+        ansible.posix.selinux:
+          state: disabled
+        when: ansible_os_family == "RedHat"
+
+#      - name: "Update Hostnames"
+#        hostname:
+#          name: "{{ new_hostname }}.{{ domain_name }}"
+#          strategy: systemd
+
+#      - name: Copy RPM Fusion repository file to server
+#        yum:
+#          name: 
+#            - https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm
+#            - https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm
+#            - rpmfusion-free-release-tainted
+#            - rpmfusion-nonfree-release-tainted
+#          disable_gpg_check: yes
+#          state: latest
+#        when: ansible_os_family == "RedHat"
+
+      - name: "Install Microsoft Powershell Repo"
+        get_url:
+          url: https://packages.microsoft.com/config/rhel/8/prod.repo
+          dest: /etc/yum.repos.d/microsoft.repo
+          mode: '0644'
+        when: ansible_os_family == "RedHat" and ansible_facts['distribution_major_version'] == "8") # RHEL, CentOS, Rocky version 8
+
+      - name: "Install EPEL repo."
+        yum:
+          name: "{{ epel_repo_url }}"
+          state: present
+        when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8") # RHEL 8 only
+    
+      - name: "Import EPEL GPG key."
+        rpm_key:
+          key: "{{ epel_repo_gpg_key_url }}"
+          state: present
+        when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8") # RHEL 8 only
+
+      - name: "Install common packages for Debian"
+        apt:
+          name: 
+            - iftop
+            - socat
+            - vim
+            - nano
+            - wget
+            - fish
+            - zsh
+            - git
+            - make
+            - npm
+            - autofs
+            - nfs-common
+            - nfs4-acl-tools
+            - cifs-utils
+            - telnet
+            - cockpit
+            - cockpit-networkmanager
+            - cockpit-packagekit
+          state: present
+          update_cache: true
+        when: ansible_os_family == "Debian"
+
+      - name: "Install common packages for RedHat"
+        yum:
+          name:
+            - socat
+            - vim
+            - nano
+            - wget
+            - curl
+            - fish
+            - zsh
+            - bash-completion
+            - git
+            - make
+            - bpytop
+            - npm
+            - autofs
+            - telnet
+            - cifs-utils
+            - nfs-utils
+            - powershell
+            - cockpit
+            - epel-release
+            state: present
+        when: ansible_os_family == "RedHat"
+
+      - name: "Enabling Extra Repos"
+        dnf:
+          name: epel-release
+          state: latest
+        when: ansible_os_family == "RedHat"
+
+# Startup cockpit for easy administration
+      - name: "Enable cockpit.socket"
+        systemd:
+          name: cockpit.socket
+          enabled: yes
+
+      - name: "Start cockpit"
+        systemd:
+          name: cockpit.socket
+          state: started
+
+# Setup our Autofs mounts
+      - name: "Copy luc3.net autofs.master config file"
+        copy:
+          src: /software/Scripts/auto.master
+          dest: /etc/auto.master
+          mode: 0644
+
+      - name: "Copy luc3.net autofs.luc3.nfs config file"
+        copy:
+          src: /software/Scripts/auto.luc3.nfs
+          dest:	/etc/auto.luc3.nfs
+          mode:	0644
+
+      - name: "Ensure autofs is running"
+        service:
+          name: autofs
+          state: started
+          enabled: yes
+
+      - name: "Theraputic restart for autofs"
+        service:
+          name: autofs
+          state: restarted
+
+# Finally, lets update all our packages. 
+      - name: "Upgrade all rpm packages RedHat"
+        yum:
+          name: '*'
+          state: latest
+        when: ansible_os_family == "RedHat"
+
+      - name: "Upgrade all deb packages Debian"
+        apt:
+          update_cache: yes
+          upgrade: 'yes'
+        when: ansible_os_family == "Debian"

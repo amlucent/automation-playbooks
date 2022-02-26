@@ -1,0 +1,23 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Create a new vvols endpoint on FlashArrays #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+
+    - name: Create empty hostgroup for SCOP servers
+      delegate_to: localhost
+      purestorage.flasharray.purefa_hg:
+        hostgroup: SCOP-HG
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+
+    - name: Create new endpoint named SCOP
+      delegate_to: localhost
+      purestorage.flasharray.purefa_endpoint:
+        name: SCOP-{{ array_name }}-EP
+        hgroup: SCOP-HG
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+        state: present

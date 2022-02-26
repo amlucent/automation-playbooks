@@ -1,0 +1,21 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Configure PhoneHome and Remote Support settings on FlashBlade #####"
+  hosts: '{{target|default("purefb")}}'
+  gather_facts: False
+
+  tasks:
+    # Disable PhoneHome & Remote Assist for Dark Site
+    - name: Disable Remote Phone Home
+      delegate_to: localhost
+      purestorage.flashblade.purefb_phonehome:
+        state: absent
+        fb_url: "{{ fb_url }}"
+        api_token: "{{ fb_token }}"
+
+    - name: Disable Remote Assist port
+      delegate_to: localhost
+      purestorage.flashblade.purefb_ra:
+        state: absent
+        fb_url: "{{ fb_url }}"
+        api_token: "{{ fb_token }}"

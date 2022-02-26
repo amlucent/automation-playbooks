@@ -1,0 +1,22 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Configure NTP settings on FlashBlade #####"
+  hosts: '{{target|default("purefb")}}'
+  gather_facts: False
+
+  tasks:
+    # Set Time servers to maintain log accuracy
+    - name: Delete existing NTP server entries
+      delegate_to: localhost
+      purestorage.flashblade.purefb_ntp:
+        state: absent
+        fb_url: "{{ fb_url }}"
+        api_token: "{{ fb_token }}"
+
+    - name: Set array NTP servers
+      delegate_to: localhost
+      purestorage.flashblade.purefb_ntp:
+        state: present
+        ntp_servers: "{{ ntp_servers }}"
+        fb_url: "{{ fb_url }}"
+        api_token: "{{ fb_token }}"

@@ -1,0 +1,59 @@
+---
+- hosts: '{{target|default("cisco-mds")}}'
+  name: create zones
+  connection: network_cli
+  gather_facts: no
+  vars:
+    host: '{{target|default("cisco-mds")}}'
+    ansible_ssh_pass: REDACTED
+    iusername: ansibleuser
+    ipassword: "{{ ansible_ssh_pass }}"
+    transport: cli
+    zoneset_name: "zs01"
+    devices:
+      - da: 'host01_875a'
+      - da: 'host02_88ba'
+      - da: 'host04_8742'
+
+    storage:
+      - dpure04_ct00
+      - dpure04_ct11
+    zone: []
+    zones: []
+    zone_names: []
+  tasks:
+    - name: import vars
+      include_vars: /etc/ansible/host_vars/10.20.64.111.yml
+
+    - name: zn creation
+      set_fact:
+        zone_names: "{{ zone_names + [dat.0.da~'_'~dat.1] }}"
+      loop: "{{ devices | product(storage) | list }}"
+      loop_control:
+        loop_var: dat
+
+    - name: set zones fact
+      set_fact:
+        zones: "{{ zones + zone }}"
+      loop: "{{ devices | product(storage) | list }}"
+      loop_control:
+        loop_var: dev
+      vars:
+        zone:
+          - name: "{{ dev.0.da~'_'~dev.1 }}"
+            members:
+              - {device-alias: '{{ dev.0.da }}'}
+              - {device-alias: '{{ dev.1 }}'}
+    - name: Zone it.
+      loop: "{{ zone_names | list }}"
+      loop_control:
+        index_var: zn
+      nxos_zone_zoneset:
+        zone_zoneset_details:
+          - vsan: 1
+            mode: enhanced
+            zone: "{{ zones }}"
+            zoneset:
+              - name: "{{ zoneset_name }}"
+                members:
+                   - {name: "{{ zone_names[zn] }}"}

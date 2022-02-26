@@ -1,0 +1,16 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Signs EULA and Sets Contact information for FlashBlade #####"
+  hosts: '{{target|default("purefb")}}'
+  gather_facts: False
+
+  tasks:
+      # Sign EULA on FlashBlade
+    - name: Sign EULA for FlashBlade
+      delegate_to: localhost
+      purestorage.flashblade.purefb_eula:
+        company: "Federal Bureau of Investigation"
+        name: "Tony Lucent"
+        title: "Storage Systems Engineer"
+        fb_url: "{{ fb_url }}"
+        api_token: "{{ fb_token }}"

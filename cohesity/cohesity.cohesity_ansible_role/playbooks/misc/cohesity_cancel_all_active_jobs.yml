@@ -1,0 +1,42 @@
+# => Cohesity Protection Job cancellation for all active Jobs
+# =>
+# => Role: cohesity.cohesity_ansible_role
+# => Version: 0.6.0
+# => Date: 2018-12-28
+# =>
+
+# => Find and cancel all active Cohesity Protection Jobs registered to a Cluster
+---
+  - hosts: workstation
+    gather_facts: no
+    roles:
+      - cohesity.cohesity_ansible_role
+    tasks:
+        # => Gather Cohesity Facts
+        - name: Gather Cohesity Cluster Details
+          cohesity_facts:
+              cluster: "{{ var_cohesity_server }}"
+              username: "{{ var_cohesity_username }}"
+              password: "{{ var_cohesity_password }}"
+              validate_certs: "{{ var_validate_certs }}"
+              state: minimal
+              include_runs: True
+              active_only: True
+          register: cohesity
+
+        - name: "Cohesity Protection Job: Modify Job to state of stopped/canceled."
+          include_role:
+            name: cohesity.cohesity_ansible_role
+            tasks_from: job
+          vars:
+            cohesity_server: "{{ var_cohesity_server }}"
+            cohesity_admin: "{{ var_cohesity_username }}"
+            cohesity_password: "{{ var_cohesity_password }}"
+            cohesity_validate_certs: "{{ var_validate_certs }}"
+            cohesity_protection:
+                state: stopped
+                job_name: "{{ item['jobName'] }}"
+                environment: "{{ item['backupRun']['environment'].lstrip('k') }}"
+                cancel_active: True
+          with_items: "{{ cohesity['cluster']['protection']['runs'] }}"
+          tags: [ 'cohesity', 'jobs', 'stopped' ]

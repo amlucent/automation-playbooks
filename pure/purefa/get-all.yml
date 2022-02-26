@@ -1,0 +1,48 @@
+#!/bin/ansible-playbook
+---
+- name: Get all host and volume information from a FlashArray
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: no
+ 
+  tasks:
+    - name: open RestAPI session
+      delegate_to: localhost
+      uri:
+        url: https://{{ arrayurl }}/api/{{ api_version }}/auth/session
+        method: POST
+        validate_certs: no
+        return_content: yes
+        body:
+          api_token: "{{ array_token }}"
+        body_format: json
+      register: session
+ 
+    - name: list all hosts
+      delegate_to: localhost
+      uri:
+        url: https://{{ arrayurl }}/api/{{ api_version }}/host
+        method: GET
+        validate_certs: no
+        HEADER_Cookie: "{{session.set_cookie}}"
+        return_content: yes
+      ignore_errors: yes
+      register: hosts
+ 
+    - name: show hosts data
+      debug: msg="{{ hosts.json }}"
+      delegate_to: localhost
+ 
+    - name: list all volumes
+      delegate_to: localhost
+      uri:
+        url: https://{{ arrayurl }}/api/{{ api_version }}/volume
+        method: GET
+        validate_certs: no
+        HEADER_Cookie: "{{session.set_cookie}}"
+        return_content: yes
+      ignore_errors: yes
+      register: volumes
+ 
+    - name: show volumes data
+      debug: msg="{{ volumes.json }}"
+      delegate_to: localhost

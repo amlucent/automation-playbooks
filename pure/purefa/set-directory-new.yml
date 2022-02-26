@@ -1,0 +1,67 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Configure AD domain and user settings on FlashArrays #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+  vars_prompt:
+    - name: ad_username
+      prompt: "What is your AD administrator username?"
+      private: no
+    - name: ad_password
+      prompt: "What is your AD administrator password?"
+      private: yes
+
+  tasks:
+    # Set Active Directory Integration for Admins
+    - name: Fully delete AD account. Note that correct AD permissions are required
+      purestorage.flasharray.purefa_ad:
+        name: "{{ ansible_hostname }}"
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    - name: Create new AD account
+      purestorage.flasharray.purefa_ad:
+        name: "{{ ansible_hostname }}"
+        computer: "{{ ansible_hostname }}"
+        domain: "{{ ad_domain }}"
+        join_ou: "{{ ad_join_ou }}"
+        username: "{{ ad_username }}"
+        password: "{{ ad_password }}"
+        kerberos_servers: "{{ ad_kerberos_servers }}"
+        directory_servers: "{{ ad_directory_servers }}"
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    # - name: Delete existing directory service
+    #   purefa_ds:
+    #     state: absent
+    #     fa_url: "{{ fa_url }}"
+    #     api_token: "{{ fa_token }}"
+
+    # - name: Create directory service (enabled) - 5.2.0 or higher
+    #   purefa_ds:
+    #     enable: true
+    #     uri: "{{ ldap_url }}"
+    #     base_dn: "{{ ldap_base_dn }}"
+    #     bind_user: "{{ ldap_bind_user }}"
+    #     bind_password: "{{ ldap_bind_pass }}"
+    #     group_base: "{{ ldap_group_base }}"
+    #     fa_url: "{{ fa_url }}"
+    #     api_token: "{{ fa_token }}"
+
+    # - name: Delete existing array_admin directory service role
+    #   purefa_dsrole:
+    #     role: array_admin
+    #     state: absent
+    #     fa_url: "{{ fa_url }}"
+    #     api_token: "{{ fa_token }}"
+
+    # - name: Create array_admin directory service role
+    #   purefa_dsrole:
+    #     role: array_admin
+    #     group_base: "{{ ldap_group_base }}"
+    #     group: "{{ ldap_adm_grp }}"
+    #     fa_url: "{{ fa_url }}"
+    #     api_token: "{{ fa_token }}"

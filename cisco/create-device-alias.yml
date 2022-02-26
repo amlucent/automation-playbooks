@@ -1,0 +1,26 @@
+#!/bin/ansible-playbook
+# Usage ./create-device-alias.yml -e "hostname=ansible-host wwpn=56:2:22:11:22:88:11:67" -v
+---
+- name: "##### Create Client Device Alias on Cisco MDS #####"
+  gather_facts: no
+  hosts: '{{target|default("cisco-mds")}}'
+  vars:
+    creds:
+      host: "{{ inventory_hostname }}"
+      username: "{{ un }}"
+      password: "{{ pwd }}"
+      transport: cli
+  tasks:
+    
+    - name: Creates or removes client device alias
+      nxos_devicealias:
+          distribute: yes
+          mode: enhanced
+          da:
+              - { name: '{{ hostname }}_HB{{ fabricid }}', pwwn: '{{ wwpn }}'}
+             # - { name: 'test2_add', pwwn: '65:22:22:11:22:22:11:d'}
+             # - { name: 'abc', remove: True}
+             # - { name: 't$yz', remove: True} 
+          provider: "{{ creds }}"
+      register: result
+    - debug: var=result

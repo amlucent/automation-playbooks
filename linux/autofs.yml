@@ -1,0 +1,57 @@
+#!/bin/ansible-playbook
+---
+- name: Luc3.net autofs Playbook
+  hosts: ubuntu:rhel
+  become: yes
+  become_user: root
+  tasks:
+    - name: ensure autofs packages are at the latest version on RedHat distros
+      yum:
+        name: 
+          - autofs
+          - nfs-utils
+          - cifs-utils
+        state: latest
+      when: ansible_os_family == "RedHat"
+
+    - name: ensure autofs packages are at the latest version on Debian distros
+      apt:
+        name: 
+          - autofs
+          - nfs-common
+          - nfs4-acl-tools
+          - cifs-utils
+        state: latest
+      when: ansible_os_family == "Debian"
+
+    - name: ensure autofs packages are at the latest version on Suse distros
+      zypper:
+        name: 
+          - autofs
+          - nfs-utils
+          - cifs-utils
+        state: latest
+      when: ansible_os_family == "Suse"
+
+    - name: copy luc3.net autofs.master config file
+      copy:
+        src: /software/Scripts/auto.master
+        dest: /etc/auto.master
+        mode: 0644
+
+    - name: copy luc3.net autofs.luc3.nfs config file
+      copy:
+        src: /software/Scripts/auto.luc3.nfs
+        dest:	/etc/auto.luc3.nfs
+        mode:	0644
+
+    - name: ensure autofs is running
+      service:
+        name: autofs
+        state: started
+        enabled: yes
+
+    - name: theraputic restart for autofs
+      service:
+        name: autofs
+        state: restarted

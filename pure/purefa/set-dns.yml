@@ -1,0 +1,22 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Configure DNS settings on FlashArrays #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+      # Set DNS servers
+    - name: Delete existing DNS settings
+      delegate_to: localhost
+      purestorage.flasharray.purefa_dns:
+        state: absent
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+
+    - name: Set DNS settings
+      delegate_to: localhost
+      purestorage.flasharray.purefa_dns:
+        domain: "{{ dns_domain }}"
+        nameservers: "{{ dns_servers }}"
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"

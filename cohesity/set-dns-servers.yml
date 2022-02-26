@@ -1,0 +1,12 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Sets Cohesity cluster DNS server list #####"
+  hosts: '{{target|default("cohesity")}}'
+  gather_facts: False
+  #become: yes
+
+  tasks:
+      # Set DNS servers on Cohesity clusters
+    - name: set DNS server list for the Cohesity cluster
+      shell: /home/cohesity/software/crux/bin/iris_cli -username "{{ var_cohesity_user }}" -password "{{ var_cohesity_passwd }}" cluster edit-dns dns-server-ips="{{ dns_servers }}"
+      ignore_errors: True

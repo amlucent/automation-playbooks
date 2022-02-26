@@ -1,0 +1,25 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Configure syslog settings on FlashBlade #####"
+  hosts: '{{target|default("purefb")}}'
+  gather_facts: False
+
+  tasks:
+    # Set syslog server information
+    - name: Delete existing syslog server entries
+      delegate_to: localhost
+      purestorage.flashblade.purefb_syslog:
+        name: "{{ syslog_server }}"
+        state: absent
+        fb_url: "{{ fb_url }}"
+        api_token: "{{ fb_token }}"
+
+    - name: Set array syslog servers
+      delegate_to: localhost
+      purestorage.flashblade.purefb_syslog:
+        state: present
+        name: "{{ syslog_server }}"
+        address: "{{ syslog_server }}"
+        protocol: udp
+        fb_url: "{{ fb_url }}"
+        api_token: "{{ fb_token }}"

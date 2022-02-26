@@ -1,0 +1,143 @@
+#!/bin/ansible-playbook
+# ansible-playbook create-host-volume.yaml --limit GW-PSFA-01ARU13 -v -e "hostname=ansible-host iqn=iqn.1993-08.org.vmware:01:75d12373667c volname=ansible-vol size=1T"
+---
+- name: Attach new volume to a new host in a FlashArray
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: no
+  vars_prompt:
+    - name: hostname
+      prompt: "What is the host's name? (example: ansible-host01)"
+      private: no
+    - name: iqn
+      prompt: "What is the host's IQN? (example: iqn.1993-08.org.vmware:01:75d12373667c)"
+      private: no
+    - name: volume
+      prompt: "What is the volume label? (example: ansible-vol01)"
+      private: no
+    - name: size
+      prompt: "What capacity should the volume be? (example: 1T)"
+      private: no
+
+  tasks:
+    - name: open RestAPI session
+      delegate_to: localhost
+      uri:
+        url: https://{{ fa_url }}/api/{{ api_version }}/auth/session
+        method: POST
+        validate_certs: no
+        return_content: yes
+        body:
+          api_token: "{{ array_token }}"
+        body_format: json
+      register: session
+ 
+    - name: list all hosts
+      delegate_to: localhost
+      uri:
+        url: https://{{ fa_url }}/api/{{ api_version }}/host
+        method: GET
+        validate_certs: no
+        HEADER_Cookie: "{{session.set_cookie}}"
+        return_content: yes
+      ignore_errors: yes
+      register: hosts
+ 
+    - name: show hosts data
+      debug: msg="{{ hosts.json }}"
+      delegate_to: localhost
+ 
+    - name: list all volumes
+      delegate_to: localhost
+      uri:
+        url: https://{{ fa_url }}/api/{{ api_version }}/volume
+        method: GET
+        validate_certs: no
+        HEADER_Cookie: "{{session.set_cookie}}"
+        return_content: yes
+      ignore_errors: yes
+      register: volumes
+ 
+    - name: show volumes data
+      debug: msg="{{ volumes.json }}"
+      delegate_to: localhost
+ 
+    - name: create new host
+      delegate_to: localhost
+      uri:
+        url: https://{{ fa_url }}/api/{{ api_version }}/host/{{ hostname }}
+        method: POST
+        validate_certs: no
+        HEADER_Cookie: "{{session.set_cookie}}"
+        return_content: yes
+        body:
+          iqnlist: ["{{ iqn }}"]
+        body_format: json
+      ignore_errors: yes
+ 
+    - name: create new volume
+      delegate_to: localhost
+      uri:
+        url: https://{{ fa_url }}/api/{{ api_version }}/volume/{{ volname }}
+        method: POST
+        validate_certs: no
+        HEADER_Cookie: "{{session.set_cookie}}"
+        return_content: yes
+        body:
+          size: "{{ size }}"
+        body_format: json
+      ignore_errors: yes
+ 
+    - name: attach volume to host
+      delegate_to: localhost
+      uri:
+        url: https://{{ fa_url }}/api/{{ api_version }}/host/{{ hostname }}/volume/{{ volname }}
+        method: POST
+        validate_certs: no
+        HEADER_Cookie: "{{session.set_cookie}}"
+        return_content: yes
+      ignore_errors: yes
+ 
+    - name: list all hosts
+      delegate_to: localhost
+      uri:
+        url: https://{{ fa_url }}/api/{{ api_version }}/host
+        method: GET
+        validate_certs: no
+        HEADER_Cookie: "{{session.set_cookie}}"
+        return_content: yes
+      ignore_errors: yes
+      register: hosts
+ 
+    - name: show hosts data
+      debug: msg="{{ hosts.json }}"
+      delegate_to: localhost
+ 
+    - name: list all volumes
+      delegate_to: localhost
+      uri:
+        url: https://{{ fa_url }}/api/{{ api_version }}/volume
+        method: GET
+        validate_certs: no
+        HEADER_Cookie: "{{session.set_cookie}}"
+        return_content: yes
+      ignore_errors: yes
+      register: volumes
+ 
+    - name: show volumes data
+      debug: msg="{{ volumes.json }}"
+      delegate_to: localhost
+ 
+    - name: show host volume attachments
+      delegate_to: localhost
+      uri:
+        url: https://{{ fa_url }}/api/{{ api_version }}/host/{{ hostname }}/volume
+        method: GET
+        validate_certs: no
+        HEADER_Cookie: "{{session.set_cookie}}"
+        return_content: yes
+      ignore_errors: yes
+      register: attached_volumes
+ 
+    - name: show attached volumes data
+      debug: msg="{{ attached_volumes.json }}"
+      delegate_to: localhost

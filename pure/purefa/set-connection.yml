@@ -1,0 +1,16 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Creates Replication Connections for FlashArray #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+      # Create connections on FlashArrays
+    - name: Create an async connection to remote array
+      delegate_to: localhost
+      purestorage.flasharray.purefa_connect:
+        target_url: 10.10.10.20
+        target_api: 9c0b56bc-f941-f7a6-9f85-dcc3e9a8f7d6
+        connection: async
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"

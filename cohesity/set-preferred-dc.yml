@@ -1,0 +1,15 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Sets Cohesity cluster preferred Domain Controller list #####"
+  hosts: '{{target|default("cohesity")}}'
+  gather_facts: False
+  #become: yes
+
+  tasks:
+      # Set Preferred domain controllers on Cohesity clusters
+    - name: Clear existing preferred domain controllers for the Cohesity cluster
+      shell: /home/cohesity/software/crux/bin/iris_cli -username "{{ var_cohesity_user }}" -password "{{ var_cohesity_passwd }}" ad set-preferred-domain-controllers active-directory-domain-name="{{ ad_domain }}" clear-preferred-domain-controller=true
+      ignore_errors: True
+
+    - name: Sets the preferred domain controllers for the Cohesity cluster
+      shell: /home/cohesity/software/crux/bin/iris_cli -username "{{ var_cohesity_user }}" -password "{{ var_cohesity_passwd }}" ad set-preferred-domain-controllers active-directory-domain-name="{{ ad_domain }}" domain-controllers="{{ local_dcs }}"

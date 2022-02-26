@@ -1,0 +1,8 @@
+---
+- name: Display DNS name servers configured on all servers.
+  hosts: rhel
+  become: yes
+  tasks:
+    - name: Display DNS servers on host
+      ansible.builtin.shell:
+        cmd: cat /etc/resolv.conf | grep nameserver

@@ -1,0 +1,11 @@
+#!/bin/ansible-playbook
+---
+- hosts: "ubuntu"
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: apt update and upgrade
+      apt:
+        update_cache: yes
+        upgrade: 'yes'
+      when: ansible_os_family == "Debian"

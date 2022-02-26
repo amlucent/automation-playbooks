@@ -1,0 +1,42 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Configure SMTP settings on FlashArrays #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+    # Set SMTP email server and alert mail address
+    - name: Delete existing SMTP settings
+      purestorage.flasharray.purefa_smtp:
+        state: absent
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    - name: Set SMTP settings
+      purestorage.flasharray.purefa_smtp:
+        state: present
+        sender_domain: "{{ dns_domain }}"
+        #password: "{{ smtp_account_pwd }}"
+        #user: "(( smtp_account }}"
+        relay_host: "{{ smtp_relay_host }}"
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    - name: Delete existing email recipient
+      purestorage.flasharray.purefa_alert:
+        state: absent
+        address: "{{ recipient_email }}"
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    - name: Add new email recipient and enable, or enable existing email
+      purestorage.flasharray.purefa_alert:
+        address: "{{ recipient_email }}"
+        enabled: true
+        state: present
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost

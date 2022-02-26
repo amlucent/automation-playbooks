@@ -1,0 +1,54 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Create new users on FlashArrays #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+  vars_prompt:
+    - name: pure_old_passwd
+      prompt: "What is pureuser's current password?"
+      private: yes
+    - name: pure_new_passwd
+      prompt: "What is pureuser's new password?"
+      private: yes
+    - name: vvol_passwd
+      prompt: "What would you like to make the vvol-admin password?"
+      private: yes
+    - name: ansible_passwd
+      prompt: "What would you like to make the ansible-admin password?"
+      private: yes      
+      
+  tasks:
+
+    - name: Create new user ansible with API token
+      delegate_to: localhost
+      purestorage.flasharray.purefa_user:
+        name: ansible
+        password: "{{ ansible_passwd }}"
+        role: array_admin
+        api: true
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      register: result
+      # debug:
+      #   msg: "API Token: {{ result['user_info']['user_api'] }}"
+
+    - name: Create new user vvol-admin with API token
+      delegate_to: localhost
+      purestorage.flasharray.purefa_user:
+        name: vvol-admin
+        password: "{{ vvol_passwd }}"
+        role: array_admin
+        api: true
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      register: result
+      # debug:
+      #   msg: "API Token: {{ result['user_info']['user_api'] }}"
+
+    - name: Change password type for existing pureuser account (NOT IDEMPOTENT)
+      purefa_user:
+        name: pureuser
+        password: "{{ new_passwd }}"
+        old_password: "{{ old_passwd }}"
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"

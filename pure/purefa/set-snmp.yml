@@ -1,0 +1,26 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Configure SNMP Monitoring on FlashArrays #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+    #  Set SNMP Monitoring Information
+    - name: Delete existing SNMP manager
+      purestorage.flasharray.purefa_snmp:
+        name: monitoring1
+        state: absent
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    - name: Create v3 SNMP manager
+      purestorage.flasharray.purefa_snmp:
+        name: monitoring1
+        version: v3
+        auth_protocol: MD5
+        auth_passphrase: "{{ snmp_pass }}"
+        host: "{{ snmp_server }}"
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost

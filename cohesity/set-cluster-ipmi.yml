@@ -1,0 +1,12 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Sets Cohesity cluster IPMI credentials #####"
+  hosts: '{{target|default("cohesity")}}'
+  gather_facts: False
+  #become: yes
+
+  tasks:
+      # Set IPMI credentials on Cohesity clusters
+    - name: set IPMI credentials for the Cohesity cluster
+      shell: /home/cohesity/software/crux/bin/iris_cli -username "{{ var_cohesity_user }}" -password "{{ var_cohesity_passwd }}" cluster edit-ipmi-cred ipmi-username="{{ var_cohesity_user }}" ipmi-password="{{ var_cohesity_passwd }}"
+      ignore_errors: True

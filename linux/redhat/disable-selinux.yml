@@ -1,0 +1,23 @@
+#!/bin/ansible-playbook
+---
+- name: Ansible Playbook for disabling SELinux and Reboot .
+  hosts: k3s:rhel
+  serial: 1
+  handlers:
+          - name: reboot server
+            command: systemctl reboot
+  tasks:
+          - name: Disabling SELinux
+            selinux:
+                    state: disabled
+            register: selinuxdisabled
+          - name: Print the changes in Configurtion file 
+            command: grep SELINUX /etc/sysconfig/selinux
+            register: sevalue
+          - debug:
+                  var: sevalue.stdout_lines
+          - name: Wait for 5 Second and Reboot 
+            shell: "sleep 5 && reboot"
+            async: 1
+            poll: 0
+            when: selinuxdisabled is changed

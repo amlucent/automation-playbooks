@@ -1,0 +1,67 @@
+#!/bin/ansible-playbook
+---
+- name: Setup Cockpit headless administration on RHEL and RHEL like servers
+  hosts: k3s:rhel
+  user: sysadmin
+  become: yes
+  serial: 1
+  tasks:
+
+#
+# Add the EPEL Repository if its somehow not already there
+#
+
+  - name: Add the EPEL Repository
+    yum:
+      name: epel-release
+      state: present
+
+#
+# cockpit
+#
+
+  - name: Install cockpit
+    yum:
+      name:
+      - cockpit
+      - cockpit-ws # Cockpit Web Service
+      - cockpit-pcp # Cockpit PCP integration
+      - cockpit-selinux # Cockpit SELinux package
+      - cockpit-doc # Cockpit deployment and developer guide
+      - cockpit-bridge # Cockpit bridge server-side component
+      - cockpit-machines # Cockpit user interface for virtual machines
+      - cockpit-kdump # Cockpit user interface for kernel crash dumping
+      - cockpit-packagekit # Cockpit user interface for package updates
+      - cockpit-sosreport # Cockpit user interface for diagnostic reports
+      - cockpit-podman # Cockpit user interface for Kubernetes cluster
+      - cockpit-storaged # Cockpit user interface for storage, using Storaged
+      - cockpit-networkmanager # Cockpit user interface for networking, using NetworkManager
+      - cockpit-system # Cockpit admin interface package for configuring and troubleshooting a system
+      state: present
+
+#
+# start and enable cockpit
+#
+
+  - name: start cockpit
+    systemd:
+      name: cockpit
+      state: started
+
+  - name: enable cockpit.socket
+    systemd:
+      name: cockpit.socket
+      enabled: yes
+
+#
+# set firewall rules for cockpit.  comment out if you disable firewalld
+#
+
+#  - name: Firewall rules
+#    firewalld:
+#      service: cockpit
+#      permanent: true
+#      state: enabled
+#      immediate: yes
+
+...

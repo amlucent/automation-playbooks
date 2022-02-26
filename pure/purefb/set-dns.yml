@@ -1,0 +1,23 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Configure DNS settings on FlashBlade #####"
+  hosts: '{{target|default("purefb")}}'
+  gather_facts: False
+
+  tasks:
+      # Set DNS servers
+    - name: Delete existing DNS settings
+      delegate_to: localhost
+      purestorage.flashblade.purefb_dns:
+        state: absent
+        fb_url: "{{ fb_url }}"
+        api_token: "{{ fb_token }}"
+
+    - name: Set DNS settings
+      delegate_to: localhost
+      purestorage.flashblade.purefb_dns:
+        domain: "{{ dns_domain }}"
+        nameservers: "{{ dns_servers }}"
+        search: "{{ search_domain }}"
+        fb_url: "{{ fb_url }}"
+        api_token: "{{ fb_token }}"

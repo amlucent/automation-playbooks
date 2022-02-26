@@ -1,0 +1,41 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Configure AD groups for Management on FlashArrays #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+
+    - name: Delete existing array_admin directory service role
+      purestorage.flasharray.purefa_dsrole:
+        role: array_admin
+        state: absent
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    - name: Create array_admin directory service role
+      purestorage.flasharray.purefa_dsrole:
+        role: array_admin
+        group_base: "{{ ldap_group_base }}"
+        group: "{{ ldap_adm_grp }}"
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    - name: Delete existing readonly directory service role
+      purestorage.flasharray.purefa_dsrole:
+        role: readonly
+        state: absent
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    - name: Create readonly directory service role
+      purestorage.flasharray.purefa_dsrole:
+        role: readonly
+        group_base: "{{ ldap_group_base }}"
+        group: "{{ ldap_ro_grp }}"
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost

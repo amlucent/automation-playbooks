@@ -1,0 +1,25 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Configure syslog settings on FlashArrays #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+    # Set syslog server information
+    - name: Delete existing syslog server entries
+      purestorage.flasharray.purefa_syslog:
+        address: "{{ syslog_server }}"
+        protocol: tcp
+        state: absent
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    - name: Set array syslog servers
+      purestorage.flasharray.purefa_syslog:
+        state: present
+        address: "{{ syslog_server }}"
+        protocol: udp
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost

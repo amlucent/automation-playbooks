@@ -1,0 +1,46 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Collect and display information for FlashArray #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+      # Collect and retrieve information for FlashArray
+    # - name: collect default set of information
+    #   purefa_info:
+    #     fa_url: 10.10.10.2
+    #     api_token: e31060a7-21fc-e277-6240-25983c6c4592
+    #   register: array_info
+    # - name: show default information
+    #   debug:
+    #     msg: "{{ array_info['purefa_info']['default'] }}"
+
+    # - name: collect configuration and capacity information
+    #   purefa_info:
+    #     gather_subset:
+    #       - config
+    #     fa_url: 10.10.10.2
+    #     api_token: e31060a7-21fc-e277-6240-25983c6c4592
+    #   register: array_info
+    # - name: show configuration information
+    #   debug:
+    #     msg: "{{ array_info['purefa_info']['config'] }}"
+
+    - name: collect all information
+      purestorage.flasharray.purefa_info:
+        gather_subset:
+          - all
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+    - name: display information
+      debug:
+        msg: "{{ array_info['purefa_info'] }}"
+
+    - name: collect all inventory
+      purestorage.flasharray.purefa_inventory:
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+    - name: show inventory information
+      debug:
+        msg: "{{ array_info['purefa_info'] }}"
+

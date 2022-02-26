@@ -1,0 +1,19 @@
+#!/bin/ansible-playbook
+---
+- name: Get API versions from FlashArray
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: no
+
+  tasks:
+    - name: api version
+      deligate_to: localhost
+      uri:
+        url: https://{{ fa_url }}/api/api_version
+        method: GET
+        validate_certs: no
+        return_content: yes
+      register: api_version
+
+    - name: show supported versions
+      debug: msg="{{ api_version.json }}"
+      deligate_to: localhost

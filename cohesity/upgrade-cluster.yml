@@ -1,0 +1,80 @@
+#!/bin/ansible-playbook
+# admin 891ade20-040f-472e-7379-e7c923348f25
+---
+- name: "##### Upgrades SPANOS version of Cohesity cluster #####"
+  hosts: '{{target|default("cohesity")}}'
+  gather_facts: False
+  become: yes
+
+  tasks:
+      # Upgrades Cohesity clusters
+    # - name: Uploads a firmware package to the Cohesity cluster /tmp
+    #   ansible.posix.synchronize:
+    #     src: /software/Scripts/ansible/playbooks/cohesity/{{ var_cohesity_pkg }}
+    #     dest: /home_cohesity_data/
+    #     archive: no
+    #     #mode: 0644
+
+#    - name: Marks the firmware package available to the Cohesity cluster
+#      shell: /home/cohesity/software/crux/bin/iris_cli -username "{{ var_cohesity_user }}" -password "{{ var_cohesity_passwd }}" patch import file-path=http://luc3lnx01.luc3.net/cohesity-updates/{{ var_cohesity_pkg }}
+
+    - name: Login to an Cohesity cluster API and fetch an access token
+      delegate_to: localhost
+      uri:
+        url: https://{{ var_cohesity_server }}/irisservices/api/v1/public/accessTokens
+        method: POST
+        validate_certs: no
+        return_content: yes
+        status_code: [200, 201]
+        body:
+            domain: "local"
+            otpCode: "string"
+            otpType: "Totp"
+            password: "{{ var_cohesity_passwd }}"
+            username: "{{ var_cohesity_user }}"
+        body_format: json
+      register: session
+
+    # - name: Display token
+    #   debug: msg="{{ session.json | json_query(jmesquery) }}"
+    #   delegate_to: localhost
+    #   vars:
+    #     jmesquery: "accessToken"
+
+    - name: Register token
+      set_fact:
+        cohesity_token: "{{ session.json | json_query(jmesquery) }}"
+      delegate_to: localhost
+      vars:
+        jmesquery: "accessToken"
+
+    - name: Upload Cohesity Firmware Package
+      delegate_to: localhost
+      uri:
+        url: https://{{ var_cohesity_server }}/irisservices/api/v1/public/packages/url
+        method: POST
+        headers:
+          Authorization: Bearer "{{ cohesity_token }}"
+        validate_certs: no
+        return_content: yes
+        status_code: [200, 202]
+        body:
+          url: http://luc3lnx01.luc3.net/cohesity-updates/{{ var_cohesity_pkg }}
+        body_format: json
+      ignore_errors: yes
+
+    - name: Display Cohesity Firmware Packages
+      delegate_to: localhost
+      uri:
+        url: https://{{ var_cohesity_server }}/irisservices/api/v1/public/packages
+        method: GET
+        headers:
+          Authorization: Bearer "{{ cohesity_token }}"
+        validate_certs: no
+        return_content: yes
+        status_code: [200, 202]
+      ignore_errors: yes
+
+  #  - name: Upgrades and reboots the Cohesity cluster
+  #    shell: /home/cohesity/software/crux/bin/iris_cli -username "{{ var_cohesity_user }}" -password "{{ var_cohesity_passwd }}" cluster upgrade software-pkg-url=http://luc3lnx01.luc3.net/cohesity-updates/{{ var_cohesity_pkg }}
+  #    ignore_errors: True

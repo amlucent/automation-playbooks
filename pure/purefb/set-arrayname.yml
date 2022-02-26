@@ -1,0 +1,15 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Sets the Array name on FlashBlade #####"
+  hosts: '{{target|default("purefb")}}'
+  gather_facts: False
+
+  tasks:
+      # Set hostname on FlashBlade
+    - name: Set new array name
+      delegate_to: localhost
+      purestorage.flashblade.purefb_bladename:
+        name: "{{ array_name }}"
+        state: present
+        fb_url: "{{ fb_url }}"
+        api_token: "{{ fb_token }}"

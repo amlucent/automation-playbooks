@@ -1,0 +1,21 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Configure PhoneHome and Remote Support settings on FlashArrays #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+    # Disable PhoneHome & Remote Assist for Dark Site
+    - name: Disable Phonehome
+      purestorage.flasharray.purefa_phonehome:
+        state: absent
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost
+
+    - name: Disable Remote Assist port
+      purestorage.flasharray.purefa_ra:
+        state: disable
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      delegate_to: localhost

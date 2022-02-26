@@ -1,0 +1,18 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Sets the SSL host cert on FlashArray #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+      # Set SSL cert on FlashArrays
+    - name: Import SSL Cert foo and Private Key
+      delegate_to: localhost
+      purestorage.flasharray.purefa_certs:
+        state: import
+        name: foo
+        certificate: "{{lookup('file', 'example.crt') }}"
+        key: "{{lookup('file', 'example.key') }}"
+        passphrase: password
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"

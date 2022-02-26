@@ -1,0 +1,77 @@
+#!/bin/ansible-playbook
+---
+- name: install latest common packages on all hosts
+  hosts: "*"
+  gather_facts: True
+  become: true
+  serial: 1
+  tasks:
+  
+    - name: install common packages Debian
+      apt:
+        name: 
+          - iftop
+          - socat
+          - vim
+          - nano
+          - wget
+          - fish
+          - zsh
+          - git
+          - make
+          - npm
+          - autofs
+          - telnet
+          - cockpit
+          - cockpit-networkmanager
+          - cockpit-packagekit
+        state: present
+        update_cache: true
+      when: ansible_os_family == "Debian"
+
+    - name: install common packages RedHat
+      yum:
+        name:
+          - socat
+          - vim
+          - nano
+          - wget
+          - curl
+          - fish
+          - zsh
+          - bash-completion
+          - git
+          - make
+          - bpytop
+          - npm
+          - autofs
+          - telnet
+          - cifs-utils
+          - nfs-utils
+          - powershell
+          - cockpit
+          - epel-release
+          state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: enable cockpit.socket
+      systemd:
+        name: cockpit.socket
+        enabled: yes
+
+    - name: start cockpit
+      systemd:
+        name: cockpit.socket
+        state: started
+
+    - name: Upgrade all rpm packages RedHat
+      yum:
+        name: '*'
+        state: latest
+      when: ansible_os_family == "RedHat"
+
+    - name: Upgrade all deb packages Debian
+      apt:
+        update_cache: yes
+        upgrade: 'yes'
+      when: ansible_os_family == "Debian"

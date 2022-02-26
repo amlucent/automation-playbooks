@@ -1,0 +1,61 @@
+---
+  - name: "Basic K3S Configuration Playbook"
+    hosts: k3s
+    become: yes
+    become_user: root
+    strategy: free
+
+    tasks:
+
+      - name: "Testing Reachability of Hosts"
+        ping:
+
+      - name: Disable SELinux
+        ansible.posix.selinux:
+          state: disabled
+
+      - name: "Enabling Epel Repo"
+        dnf:
+          name: epel-release
+          state: latest
+
+      - name: Install RPM Fusion Repository
+        yum:
+          name: 
+            - https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm
+            - https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm
+            - rpmfusion-free-release-tainted
+            - rpmfusion-nonfree-release-tainted
+          disable_gpg_check: yes
+          state: latest
+
+      - name: Install Microsoft Powershell Repo
+        get_url:
+          url: https://packages.microsoft.com/config/rhel/8/prod.repo
+          dest: /etc/yum.repos.d/microsoft.repo
+          mode: '0644'
+
+      - name: "Installing Packages"
+        yum:
+          name:
+            - socat
+            - vim
+            - nano
+            - fish
+            - git
+            - make
+            - bpytop
+            - npm
+            - autofs
+            - telnet
+            - cifs-utils
+            - nfs-utils
+            - libva
+            - libva-utils
+            - libva-intel-driver
+            - "*-firmware"
+            - libdvdcss
+            - powershell
+          state: present
+
+...

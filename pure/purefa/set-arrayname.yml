@@ -1,0 +1,15 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Sets the Array name on FlashArray #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+      # Set hostname on FlashArrays
+    - name: Set new array name
+      delegate_to: localhost
+      purestorage.flasharray.purefa_arrayname:
+        name: "{{ array_name }}"
+        state: present
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"

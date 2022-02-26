@@ -1,0 +1,11 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Increase log partition capacity from default 128 MB to custom 512 MB #####"
+  hosts: '{{target|default("unraid")}}'
+  gather_facts: False
+  #become: yes
+
+  tasks:
+      # Increase log capacity
+    - name: Increase log capacity to 512 MB
+      shell: mount -o remount,size=512m /var/log

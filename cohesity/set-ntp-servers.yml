@@ -1,0 +1,15 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Sets Cohesity cluster NTP server list #####"
+  hosts: '{{target|default("cohesity")}}'
+  gather_facts: False
+  #become: yes
+
+  tasks:
+      # Set NTP servers on Cohesity clusters
+    - name: set NTP server list for the Cohesity cluster
+      shell: /home/cohesity/software/crux/bin/iris_cli -username "{{ var_cohesity_user }}" -password "{{ var_cohesity_passwd }}" cluster edit-ntp ntp-servers="{{ ntp_servers }}"
+      ignore_errors: True
+
+    - name: sync NTP time to all nodes of the Cohesity cluster
+      shell: /home/cohesity/software/crux/bin/iris_cli -username "{{ var_cohesity_user }}" -password "{{ var_cohesity_passwd }}" cluster sync-ntp

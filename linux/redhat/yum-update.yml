@@ -1,0 +1,13 @@
+#!/bin/ansible-playbook
+---
+- name: Update all RHEL and RHEL like servers
+  hosts: rhel
+  user: sysadmin
+  become: yes
+  serial: 1
+
+  tasks:
+    - name: Upgrade all rpm packages
+      yum:
+        name: '*'
+        state: latest

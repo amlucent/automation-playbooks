@@ -1,0 +1,66 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Restart all Luc3nt download containers #####"
+  hosts: '{{target|default("unraid")}}'
+  gather_facts: False
+  #become: yes
+
+  tasks:
+      # Restart all Luc3nt download containers
+    - name: Stop Sonarr container
+      shell: docker stop sonarr
+
+    - name: Stop Radarr container
+      shell: docker stop radarr
+
+    - name: Stop Lidarr container
+      shell: docker stop lidarr
+
+    - name: Stop Readarr container
+      shell: docker stop readarr
+
+    - name: Stop Bazarr container
+      shell: docker stop bazarr
+
+    - name: Stop qBittorrent container
+      shell: docker stop qbittorrentvpn
+
+    - name: Stop Sabnzbd container
+      shell: docker stop sabnzbd
+ 
+    - name: Stop Prowlarr container
+      shell: docker stop prowlarr
+
+    - name: Stop GluetunVPN container
+      shell: docker stop gluetunvpn 
+
+    - name: Pause to fully disconnect from VPN
+      pause:
+        seconds: 10
+
+    - name: Start GluetunVPN container
+      shell: docker start gluetunvpn && sleep 45
+
+    - name: Start Prowlarr container
+      shell: docker start prowlarr && sleep 15
+
+    - name: Start Sabnzbd container
+      shell: docker start sabnzbd && sleep 3
+
+    - name: Start qBittorrent container
+      shell: docker start qbittorrentvpn && sleep 15
+
+    - name: Start Bazarr container
+      shell: docker start bazarr
+
+    - name: Start Readarr container
+      shell: docker start readarr && sleep 10
+
+    - name: Start Lidarr container
+      shell: docker start lidarr && sleep 3
+
+    - name: Start Radarr container
+      shell: docker start radarr && sleep 3
+
+    - name: Start Sonarr container
+      shell: docker start sonarr

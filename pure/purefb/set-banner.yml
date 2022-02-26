@@ -1,0 +1,22 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Sets new FlashBlade login banner #####"
+  hosts: '{{target|default("purefb")}}'
+  gather_facts: False
+
+  tasks:
+      # Set login banner on FlashBlade
+    - name: Delete banner text
+      delegate_to: localhost
+      purestorage.flashblade.purefb_banner:
+        state: absent
+        fb_url: "{{ fb_url }}"
+        api_token: "{{ fb_token }}"
+
+    - name: Set new banner text
+      delegate_to: localhost
+      purestorage.flashblade.purefb_banner:
+        banner: "{{ banner_text }}"
+        state: present
+        fb_url: "{{ fb_url }}"
+        api_token: "{{ fb_token }}"
