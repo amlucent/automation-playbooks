@@ -33,16 +33,16 @@
         state: latest
       when: ansible_os_family == "Suse"
 
-    - name: copy luc3.net autofs.master config file
+    - name: copy autofs.master config file
       copy:
-        src: /software/Scripts/auto.master
+        src: "{{ template_dir }}/auto.master"
         dest: /etc/auto.master
         mode: 0644
 
-    - name: copy luc3.net autofs.luc3.nfs config file
+    - name: copy autofs.nfs config file
       copy:
-        src: /software/Scripts/auto.luc3.nfs
-        dest:	/etc/auto.luc3.nfs
+        src: "{{ template_dir }}"/auto.nfs
+        dest:	/etc/auto.nfs
         mode:	0644
 
     - name: ensure autofs is running
