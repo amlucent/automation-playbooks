@@ -8,13 +8,13 @@
 # Usage to create a single host
 # Run ./create-hosts.yml --tags create-adhoc -e "Hostname=esx-server01,Platform=ESXi,WWPNA=56:2:22:11:22:88:11:67,WWPNB=56:2:22:11:22:88:11:68" -v
 
-# Usage to remove a single host (note, Platform and WWPN values not required to remove)
+# Usage to remove a single host (note, Platform and WWPN/IQN values not required to remove)
 # Run ./create-hosts.yml --tags remove-adhoc -e "Hostname=esx-server01" -v
 
 # Usage to create multiple hosts using hosts.csv file: 
 #     1. create a file called hosts.csv in the same directory as this playbook.
-#     2. Make 4 columns titled "Hostname", "Platform", "WWPNA", and "WWPNB"
-#     3. fill in the values in all columns for all the hosts you want to create.
+#     2. Make columns titled "Hostname", "Platform", "WWPNA", and "WWPNB" if using FC. A column named IQN for iscsi, or NQN column for NVMe.  Read about "Platform" values here under personaility - https://docs.ansible.com/ansible/latest/collections/purestorage/flasharray/purefa_host_module.html
+#     3. fill in the values in all columns for all the hosts you want to create. 
 #
 # Run ./create-hosts.yml --tags create-csv -v
 
@@ -41,7 +41,11 @@
       delegate_to: localhost
       purestorage.flasharray.purefa_host:
         name: "{{ item.Hostname }}"
-        personality: "{{ item.Platform }}"       
+        personality: "{{ item.Platform }}"
+        nqn:
+        - "{{ item.NQN }}"
+        iqn:
+        - "{{ item.IQN }}"
         wwns:
         - "{{ item.WWPNA }}"
         - "{{ item.WWPNB }}"
@@ -62,11 +66,15 @@
       tags:
       - remove-csv
 
-    - name: Creates a single host on FlashArrays
+    - name: Creates a single FC host on FlashArrays
       delegate_to: localhost
       purestorage.flasharray.purefa_host:
         name: "{{ Hostname }}"
-        personality: "{{ Platform }}"       
+        personality: "{{ Platform }}"
+      #  nqn:
+      #  - "{{ NQN }}"
+      #  iqn:
+      #  - "{{ IQN }}"     
         wwns:
         - "{{ WWPNA }}"
         - "{{ WWPNB }}"
@@ -75,7 +83,7 @@
       tags:
       - create-adhoc
 
-    - name: Removes a single host on FlashArrays
+    - name: Removes a single FC host on FlashArrays
       delegate_to: localhost
       purestorage.flasharray.purefa_host:
         name: "{{{ Hostname }}"

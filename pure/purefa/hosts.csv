@@ -1,0 +1,4 @@
+﻿Hostname,Platform,WWPNA,WWPNB,IQN,NQN
+esx-server01,esxi,56:2:22:11:22:88:11:67,56:2:22:11:22:88:11:68,,
+esx-server02,esxi,56:2:22:11:22:88:11:71,56:2:22:11:22:88:11:72,iqn.1994-05.com.vmware:7d366003914,
+aix-server01,aix,,,,nqn.2014-08.com.vendor:nvme:nvm-subsystem-sn-d78432
