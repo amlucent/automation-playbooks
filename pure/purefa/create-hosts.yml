@@ -2,7 +2,7 @@
 ########################
 
 # DESCRIPTION
-# Creates and Removes Client Device Alias on Cisco MDS
+# Creates and Removes Hosts on Pure Storage FlashArrays
 
 # DIRECTIONS
 # Usage to create a single host

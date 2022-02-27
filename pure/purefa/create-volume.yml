@@ -1,19 +1,19 @@
 #!/bin/ansible-playbook
 ---
-- name: "##### Create a new volume on FlashArrays #####"
+- name: "##### Create a new LUN volume on FlashArrays #####"
   hosts: '{{target|default("purefa")}}'
   gather_facts: False
 
   vars_prompt:
     - name: volume
-      prompt: "What is the volume label? (example: ansible-vol01)"
+      prompt: "Enter the volume label. (example: ansible-vol01):"
       private: no
     - name: size
-      prompt: "What capacity should the volume be? (example: 1T)"
+      prompt: "Enter the volume capacity. (example: 1T):"
       private: no
 
   tasks:
-    - name: create new volume on FlashArray
+    - name: Create new LUN volume on FlashArray
       delegate_to: localhost
       purestorage.flasharray.purefa_volume:
         fa_url: "{{ fa_url }}"

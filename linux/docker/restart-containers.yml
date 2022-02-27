@@ -1,66 +1,138 @@
 #!/bin/ansible-playbook
+########################
+
+# DESCRIPTION
+# Stops, Starts, and Restarts containers on docker host
+
+# DIRECTIONS
+# Usage to stop docker containers
+# Run ./restart-containers.yml --tags stop -v
+
+# Usage to start docker containers
+# Run ./restart-containers.yml --tags start -v
+
+# Usage to restart docker containers
+# Run ./restart-containers.yml --tags restart -v
+
 ---
-- name: "##### Restart all download containers #####"
+- name: "##### Stop, Start, or Restart Docker Containers #####"
   hosts: '{{target|default("unraid")}}'
   gather_facts: False
   #become: yes
 
   tasks:
-      # Restart all Luc3nt download containers
+
     - name: Stop Sonarr container
       shell: docker stop sonarr
+      tags:
+      - stop
+      - restart     
 
     - name: Stop Radarr container
       shell: docker stop radarr
+      tags:
+      - stop
+      - restart      
 
     - name: Stop Lidarr container
       shell: docker stop lidarr
+      tags:
+      - stop
+      - restart
 
     - name: Stop Readarr container
       shell: docker stop readarr
+      tags:
+      - stop
+      - restart      
 
     - name: Stop Bazarr container
       shell: docker stop bazarr
+      tags:
+      - stop
+      - restart      
 
     - name: Stop qBittorrent container
       shell: docker stop qbittorrentvpn
+      tags:
+      - stop
+      - restart      
 
     - name: Stop Sabnzbd container
       shell: docker stop sabnzbd
+      tags:
+      - stop
+      - restart      
  
     - name: Stop Prowlarr container
       shell: docker stop prowlarr
+      tags:
+      - stop
+      - restart      
 
     - name: Stop GluetunVPN container
-      shell: docker stop gluetunvpn 
+      shell: docker stop gluetunvpn
+      tags:
+      - stop
+      - restart      
 
     - name: Pause to fully disconnect from VPN
       pause:
         seconds: 10
+      tags:
+      - stop
+      - restart
 
     - name: Start GluetunVPN container
       shell: docker start gluetunvpn && sleep 45
+      tags:
+      - start
+      - restart    
 
     - name: Start Prowlarr container
       shell: docker start prowlarr && sleep 15
+      tags:
+      - start
+      - restart  
 
     - name: Start Sabnzbd container
       shell: docker start sabnzbd && sleep 3
+      tags:
+      - start
+      - restart        
 
     - name: Start qBittorrent container
       shell: docker start qbittorrentvpn && sleep 15
+      tags:
+      - start
+      - restart        
 
     - name: Start Bazarr container
       shell: docker start bazarr
+      tags:
+      - start
+      - restart        
 
     - name: Start Readarr container
       shell: docker start readarr && sleep 10
+      tags:
+      - start
+      - restart        
 
     - name: Start Lidarr container
       shell: docker start lidarr && sleep 3
+      tags:
+      - start
+      - restart        
 
     - name: Start Radarr container
       shell: docker start radarr && sleep 3
+      tags:
+      - start
+      - restart  
 
     - name: Start Sonarr container
       shell: docker start sonarr
+      tags:
+      - start
+      - restart
