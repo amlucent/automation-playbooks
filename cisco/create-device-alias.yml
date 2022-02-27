@@ -1,5 +1,26 @@
 #!/bin/ansible-playbook
-# Usage ./create-device-alias.yml -e "hostname=ansible-host wwpn=56:2:22:11:22:88:11:67" -v
+########################
+
+# DESCRIPTION
+# Creates and Removes Client Device Alias on Cisco MDS
+
+# DIRECTIONS
+# Usage to create a single device-alias
+# Run ./create-device-alias.yml --tags create-adhoc -e "alias_name=ansible-host,wwpn=56:2:22:11:22:88:11:67" -v
+
+# Usage to remove a single device-alias (note, wwpn value not required to remove)
+# Run ./create-device-alias.yml --tags remove-adhoc -e "alias_name=ansible-host" -v
+
+# Usage to create multiple device-alias using hosts.csv file: 
+#     1. create a file called hosts.csv in the same directory as this playbook.
+#     2. Make 4 columns titled "Hostname", "Platform", "WWPNA", and "WWPNB"
+#     3. fill in the values in all columns for all the hosts you want to create.
+#
+# Run ./create-device-alias.yml --tags create-csv -v
+
+# Usage to remove multiple device-alias using hosts.csv file:
+# Run ./create-device-alias.yml --tags remove-csv -v
+
 ---
 - name: "##### Create Client Device Alias on Cisco MDS #####"
   gather_facts: no
@@ -11,16 +32,68 @@
       password: "{{ pwd }}"
       transport: cli
   tasks:
-    
-    - name: Creates or removes client device alias
+
+    - name: Reading the csv file
+      read_csv:
+        path: hosts.csv
+      register: hosts_list
+      delegate_to: localhost      
+      tags:
+      - create-csv
+      - remove-csv    
+      
+    - name: Creates Cisco MDS device alias from hosts.csv
       nxos_devicealias:
           distribute: yes
           mode: enhanced
           da:
-              - { name: '{{ hostname }}_HB{{ fabricid }}', pwwn: '{{ wwpn }}'}
-             # - { name: 'test2_add', pwwn: '65:22:22:11:22:22:11:d'}
-             # - { name: 'abc', remove: True}
-             # - { name: 't$yz', remove: True} 
-          provider: "{{ creds }}"
+              - { name: '{{ item.Hostname }}_HB{{ fabricid }}', pwwn: '{{ item.WWPN{{ fabricid }} }}'}
+             # - { name: '{{ item.Hostname }}_HB{{ fabricid }}', remove: True}
+          provider: "{{ creds }}"          
+      loop: "{{ hosts_list.list }}"
       register: result
+      tags:
+      - create-csv
     - debug: var=result
+
+    - name: Removes Cisco MDS device alias from hosts.csv
+      nxos_devicealias:
+          distribute: yes
+          mode: enhanced
+          da:
+             # - { name: '{{ item.Hostname }}_HB{{ fabricid }}', pwwn: '{{ item.WWPN{{ fabricid }} }}'}
+              - { name: '{{ item.Hostname }}_HB{{ fabricid }}', remove: True}
+          provider: "{{ creds }}"          
+      loop: "{{ hosts_list.list }}"
+      register: result
+      tags:
+      - remove-csv
+    - debug: var=result
+
+    - name: Creates Cisco MDS device alias
+      nxos_devicealias:
+          distribute: yes
+          mode: enhanced
+          da:
+              - { name: '{{ alias_name }}', pwwn: '{{ wwpn }}'}
+             # - { name: '{{ alias_name }}', remove: True}
+          provider: "{{ creds }}"          
+      loop: "{{ hosts_list.list }}"
+      register: result
+      tags:
+      - create-adhoc
+    - debug: var=result 
+
+    - name: Removes Cisco MDS device alias
+      nxos_devicealias:
+          distribute: yes
+          mode: enhanced
+          da:
+             # - { name: '{{ alias_name }}', pwwn: '{{ wwpn }}'}
+              - { name: '{{ alias_name }}', remove: True}
+          provider: "{{ creds }}"          
+      loop: "{{ hosts_list.list }}"
+      register: result
+      tags:
+      - remove-adhoc
+    - debug: var=result  

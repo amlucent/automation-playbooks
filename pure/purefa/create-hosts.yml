@@ -1,11 +1,26 @@
 #!/bin/ansible-playbook
 ########################
-# Usage: 
-#         1. create a file called hosts.csv in the same directory as this playbook.
-#         2. Make 4 columns titled "Hostname", "Platform", "WWPNA", and "WWPNB"
-#         3. fill in the values in all columns for all the hosts you want to create.
-#         4. Run the playbook: ansible-playbook create-host-volume.yaml --limit PSFAX01-01ARU13 -v
-# 
+
+# DESCRIPTION
+# Creates and Removes Client Device Alias on Cisco MDS
+
+# DIRECTIONS
+# Usage to create a single host
+# Run ./create-hosts.yml --tags create-adhoc -e "Hostname=esx-server01,Platform=ESXi,WWPNA=56:2:22:11:22:88:11:67,WWPNB=56:2:22:11:22:88:11:68" -v
+
+# Usage to remove a single host (note, Platform and WWPN values not required to remove)
+# Run ./create-hosts.yml --tags remove-adhoc -e "Hostname=esx-server01" -v
+
+# Usage to create multiple hosts using hosts.csv file: 
+#     1. create a file called hosts.csv in the same directory as this playbook.
+#     2. Make 4 columns titled "Hostname", "Platform", "WWPNA", and "WWPNB"
+#     3. fill in the values in all columns for all the hosts you want to create.
+#
+# Run ./create-hosts.yml --tags create-csv -v
+
+# Usage to remove multiple hosts using hosts.csv file:
+# Run ./create-hosts.yml --tags remove-csv -v
+
 ---
 - name: "##### Create hosts on FlashArrays #####"
   hosts: '{{target|default("purefa")}}'
@@ -18,8 +33,11 @@
         path: hosts.csv
       register: hosts_list
       delegate_to: localhost
+      tags:
+      - create-csv
+      - remove-csv        
 
-    - name: Creates hosts from CSV file on FlashArrays
+    - name: Creates all hosts from CSV file on FlashArrays
       delegate_to: localhost
       purestorage.flasharray.purefa_host:
         name: "{{ item.Hostname }}"
@@ -30,3 +48,39 @@
         fa_url: "{{ fa_url }}"
         api_token: "{{ fa_token }}"
       loop: "{{ hosts_list.list }}" 
+      tags:
+      - create-csv
+
+    - name: Removes all hosts from CSV file on FlashArrays
+      delegate_to: localhost
+      purestorage.flasharray.purefa_host:
+        name: "{{ item.Hostname }}"
+        state: absent
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      loop: "{{ hosts_list.list }}" 
+      tags:
+      - remove-csv
+
+    - name: Creates a single host on FlashArrays
+      delegate_to: localhost
+      purestorage.flasharray.purefa_host:
+        name: "{{ Hostname }}"
+        personality: "{{ Platform }}"       
+        wwns:
+        - "{{ WWPNA }}"
+        - "{{ WWPNB }}"
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"        
+      tags:
+      - create-adhoc
+
+    - name: Removes a single host on FlashArrays
+      delegate_to: localhost
+      purestorage.flasharray.purefa_host:
+        name: "{{{ Hostname }}"
+        state: absent
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_token }}"
+      tags:
+      - remove-adhoc

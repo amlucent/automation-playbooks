@@ -1,20 +1,35 @@
 #!/bin/ansible-playbook
+########################
+
+# DESCRIPTION
+# Creates new users on FlashArrays
+
+# DIRECTIONS
+# Usage to create the new user ansible-admin for ansible automation operations
+# Run ./create-users.yml --tags ansible -v
+
+# Usage to create the new user vvol-admin for vvol operations
+# Run ./create-users.yml --tags vvol -v
+
+# Usage to set and reset the default pureuser's password for operations
+# Run ./create-users.yml --tags pure -v
+
 ---
 - name: "##### Create new users on FlashArrays #####"
   hosts: '{{target|default("purefa")}}'
   gather_facts: False
   vars_prompt:
     - name: pure_old_passwd
-      prompt: "What is pureuser's current password?"
+      prompt: "Enter the pureuser's current password"
       private: yes
     - name: pure_new_passwd
-      prompt: "What is pureuser's new password?"
+      prompt: "Enter the pureuser's new password"
       private: yes
     - name: vvol_passwd
-      prompt: "What would you like to make the vvol-admin password?"
+      prompt: "Enter the vvol-admin new password"
       private: yes
     - name: ansible_passwd
-      prompt: "What would you like to make the ansible-admin password?"
+      prompt: "Enter the ansible-admin new password"
       private: yes      
       
   tasks:
@@ -22,13 +37,15 @@
     - name: Create new user ansible with API token
       delegate_to: localhost
       purestorage.flasharray.purefa_user:
-        name: ansible
-        password: "{{ ansible_passwd }}"
+        name: ansible-admin
+        password: "{{ ansible_passwd|password_hash('sha512') }}"
         role: array_admin
         api: true
         fa_url: "{{ fa_url }}"
         api_token: "{{ fa_token }}"
       register: result
+      tags:
+      - ansible
       # debug:
       #   msg: "API Token: {{ result['user_info']['user_api'] }}"
 
@@ -36,19 +53,23 @@
       delegate_to: localhost
       purestorage.flasharray.purefa_user:
         name: vvol-admin
-        password: "{{ vvol_passwd }}"
+        password: "{{ vvol_passwd|password_hash('sha512') }}"
         role: array_admin
         api: true
         fa_url: "{{ fa_url }}"
         api_token: "{{ fa_token }}"
       register: result
+      tags:
+      - vvol      
       # debug:
       #   msg: "API Token: {{ result['user_info']['user_api'] }}"
 
     - name: Change password type for existing pureuser account (NOT IDEMPOTENT)
       purefa_user:
         name: pureuser
-        password: "{{ new_passwd }}"
-        old_password: "{{ old_passwd }}"
+        password: "{{ new_passwd|password_hash('sha512') }}"
+        old_password: "{{ old_passwd|password_hash('sha512') }}"
         fa_url: "{{ fa_url }}"
         api_token: "{{ fa_token }}"
+      tags:
+      - pure

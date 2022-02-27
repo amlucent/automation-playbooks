@@ -1,5 +1,5 @@
 #!/bin/ansible-playbook
-# ansible-playbook create-host-volume.yaml --limit GW-PSFA-01ARU13 -v -e "hostname=ansible-host iqn=iqn.1993-08.org.vmware:01:75d12373667c volname=ansible-vol size=1T"
+# ansible-playbook create-host-volume.yaml --limit PSFAX01-01ARU13 -v -e "hostname=ansible-host iqn=iqn.1993-08.org.vmware:01:75d12373667c volname=ansible-vol size=1T"
 ---
 - name: Attach new volume to a new host in a FlashArray
   hosts: '{{target|default("purefa")}}'
@@ -19,6 +19,7 @@
       private: no
 
   tasks:
+  
     - name: open RestAPI session
       delegate_to: localhost
       uri:

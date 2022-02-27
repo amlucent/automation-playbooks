@@ -3,6 +3,7 @@
 - name: "##### Create a new volume on FlashArrays #####"
   hosts: '{{target|default("purefa")}}'
   gather_facts: False
+
   vars_prompt:
     - name: volume
       prompt: "What is the volume label? (example: ansible-vol01)"
