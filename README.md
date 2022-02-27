@@ -1,7 +1,7 @@
 # automation-playbooks
 Infrastructure Automation Playbooks 
 
-Some assorted Ansible and Terraform infrastructure automation playbooks and shell scripts I find useful for my daily activities as a Storage System Engineer.
+Some assorted Ansible and Terraform infrastructure automation playbooks and shell scripts I wrote and find useful for my daily activities as a Storage System Engineer.  May tend to be geared towards SAN automation.
 
 ## Installation
 Prior to running any scripts I recommend you install ansible and terraform. If you require an ansible control node I hightly recommend installing the following container https://github.com/bluxmit/alnoda-workspaces/tree/main/workspaces/ansible-terraform-workspace.
