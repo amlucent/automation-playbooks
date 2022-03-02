@@ -1,3 +1,23 @@
+#!/bin/ansible-playbook
+########################
+
+# DESCRIPTION
+# Creates and Removes Zones on Cisco MDS
+
+# DIRECTIONS
+# Usage to create multiple fabric zones using A_zones.csv or B_zones.csv file: 
+#     1. create a file called A_zones.csv and B_zones.csv in the same directory as this playbook.
+#     2. Make 3 columns titled "Hostname", "Arrayname", "Array-CT0", "Array-CT1"
+#     3. fill in the values in all columns for all the hosts you want to create.
+#     4. Note: Your switches should have defined vars for "vsanid" and "fabricid".
+
+# Run ./create-zones.yml --tags create-csv -v
+
+# Usage to remove multiple zones using A_zones.csv or B_zones.csv file:
+# Run ./create-zones.yml --tags remove-csv -v
+
+---
+
 - name: "##### Creates zones and adds to zoneset on Cisco MDS #####"
   gather_facts: no
   hosts: '{{target|default("cisco-mds")}}'
