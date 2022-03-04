@@ -1,0 +1,324 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Configure outbound connections for Dark Sites on FlashArrays #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+
+  tasks:
+    #PREVENTING OUTBOUND CONNECTION ATTEMPTS
+    - name: Prevent CCM from attempting external requests
+      shell: puretune --set CCM_START_ON_BOOT 1 "Prevent CCM from attempting external requests”
+      register: result
+    - debug: var=result
+
+    #SOFTWARE CRASH
+    - name: Prevent external requests for SOFTWARE CRASH
+      shell: purealert tag --timeout --no timeout --forcevisible 01
+      register: result
+    - debug: var=result
+
+    #HA FAILOVER
+    - name: Prevent external requests for HA FAILOVER
+      shell: purealert tag --timeout --no timeout --forcevisible 03
+      register: result
+    - debug: var=result
+
+    #MAPPED SPACE GREATER THAN 88%
+    - name: Prevent external requests for MAPPED SPACE GREATER THAN 88%
+      shell: purealert tag --timeout --no timeout --forcevisible 08
+      register: result
+    - debug: var=result
+
+    #HIGH MEMORY UTILIZATION (PURITY)
+    - name: Prevent external requests for HIGH MEMORY UTILIZATION (PURITY)
+      shell: purealert tag --timeout --no timeout --forcevisible 09
+      register: result
+    - debug: var=result
+
+    #HIGH MEMORY UTILIZATION (GUI)
+    - name: Prevent external requests for HIGH MEMORY UTILIZATION (GUI)
+      shell: purealert tag --timeout --no timeout --forcevisible 10
+      register: result
+    - debug: var=result
+
+    #PURITY MONITORING STARTED
+    - name: Prevent external requests for PURITY MONITORING STARTED
+      shell: purealert tag --timeout --no timeout --forcevisible 11
+      register: result
+    - debug: var=result
+
+    #LONG NVRAM I/O
+    - name: Prevent external requests for LONG NVRAM I/O
+      shell: purealert tag --timeout --no timeout --forcevisible 17
+      register: result
+    - debug: var=result
+
+    #MYSQL FAILURE
+    - name: Prevent external requests for MYSQL FAILURE
+      shell: purealert tag --timeout --no timeout --forcevisible 18
+      register: result
+    - debug: var=result
+
+    #POSTFIX FAILURE
+    - name: Prevent external requests for POSTFIX FAILURE
+      shell: purealert tag --timeout --no timeout --forcevisible 19
+      register: result
+    - debug: var=result
+
+    #LOST PATH TO SHELF
+    - name: Prevent external requests for LOST PATH TO SHELF
+      shell: purealert tag --timeout --no timeout --forcevisible 24
+      register: result
+    - debug: var=result
+
+    #GUI FAILURE
+    - name: Prevent external requests for GUI FAILURE
+      shell: purealert tag --timeout --no timeout --forcevisible 29
+      register: result
+    - debug: var=result
+
+    #FOED ERROR DETECTED
+    - name: Prevent external requests for FOED ERROR DETECTED
+      shell: purealert tag --timeout --no timeout --forcevisible 32
+      register: result
+    - debug: var=result
+
+    #NGINX FAILURE
+    - name: Prevent external requests for NGINX FAILURE
+      shell: purealert tag --timeout --no timeout --forcevisible 36
+      register: result
+    - debug: var=result
+
+    #REST SERVICE FAILURE
+    - name: Prevent external requests for REST SERVICE FAILURE
+      shell: purealert tag --timeout --no timeout --forcevisible 37
+      register: result
+    - debug: var=result
+
+    #IO TIMEOUT OCCURRED
+    - name: Prevent external requests for IO TIMEOUT OCCURRED
+      shell: purealert tag --timeout --no timeout --forcevisible 38
+      register: result
+    - debug: var=result
+
+    #LONG SSD I/O
+    - name: Prevent external requests for LONG SSD I/O
+      shell: purealert tag --timeout --no timeout --forcevisible 40
+      register: result
+    - debug: var=result
+
+    #FIBRE CHANNEL Q-LOGIC HBA CRASH
+    - name: Prevent external requests for FIBRE CHANNEL Q-LOGIC HBA CRASH
+      shell: purealert tag --timeout --no timeout --forcevisible 41
+      register: result
+    - debug: var=result
+
+    #DIMM UNMAPPED
+    - name: Prevent external requests for DIMM UNMAPPED
+      shell: purealert tag --timeout --no timeout --forcevisible 43
+      register: result
+    - debug: var=result
+
+    #INVALID TX WORD COUNT DETECTED
+    - name: Prevent external requests for INVALID TX WORD COUNT DETECTED
+      shell: purealert tag --timeout --no timeout --forcevisible 45
+      register: result
+    - debug: var=result
+
+    #OUT OF MEMORY SOFTWARE CRASH
+    - name: Prevent external requests for OUT OF MEMORY SOFTWARE CRASH
+      shell: purealert tag --timeout --no timeout --forcevisible 54
+      register: result
+    - debug: var=result
+
+    #PCI BUS ERROR
+    - name: Prevent external requests for PCI BUS ERROR
+      shell: purealert tag --timeout --no timeout --forcevisible 58
+      register: result
+    - debug: var=result
+
+    #HIGH UNREPORTED SPACE
+    - name: Prevent external requests for HIGH UNREPORTED SPACE
+      shell: purealert tag --timeout --no timeout --forcevisible 59
+      register: result
+    - debug: var=result
+
+    #RUNTIME FIRMWARE UPGRADE JOB STALLED
+    - name: Prevent external requests for RUNTIME FIRMWARE UPGRADE JOB STALLED
+      shell: purealert tag --timeout --no timeout --forcevisible 65
+      register: result
+    - debug: var=result
+
+    #FIRMWARE BOOT ERROR
+    - name: Prevent external requests for FIRMWARE BOOT ERROR
+      shell: purealert tag --timeout --no timeout --forcevisible 71
+      register: result
+    - debug: var=result
+
+    #AUTOMATIC FIRMWARE UPGRADE FAILED
+    - name: Prevent external requests for AUTOMATIC FIRMWARE UPGRADE FAILED
+      shell: purealert tag --timeout --no timeout --forcevisible 72
+      register: result
+    - debug: var=result
+
+    #CHASSIS MANAGER MASTERSHIP FAILURE (HA MASTER)
+    - name: Prevent external requests for CHASSIS MANAGER MASTERSHIP FAILURE (HA MASTER)
+      shell: purealert tag --timeout --no timeout --forcevisible 73
+      register: result
+    - debug: var=result
+
+    #INVALID CRC COUNT DETECTED
+    - name: Prevent external requests for INVALID CRC COUNT DETECTED
+      shell: purealert tag --timeout --no timeout --forcevisible 74
+      register: result
+    - debug: var=result
+
+    #CHANNEL DROPPED FRAMES DETECTED
+    - name: Prevent external requests for CHANNEL DROPPED FRAMES DETECTED
+      shell: purealert tag --timeout --no timeout --forcevisible 75
+      register: result
+    - debug: var=result
+
+    #PROTECTION GROUP SNAPSHOT DELAYED (SOURCE ARRAY IS FULL)
+    - name: Prevent external requests for PROTECTION GROUP SNAPSHOT DELAYED (SOURCE ARRAY IS FULL)
+      shell: purealert tag --timeout --no timeout --forcevisible 76
+      register: result
+    - debug: var=result
+
+    #PROTECTION GROUP REPLICATION SNAPSHOT DELAYED (SOURCE ARRAY IS FULL)
+    - name: Prevent external requests for PROTECTION GROUP REPLICATION SNAPSHOT DELAYED (SOURCE ARRAY IS FULL)
+      shell: purealert tag --timeout --no timeout --forcevisible 77
+      register: result
+    - debug: var=result
+
+    #PROTECTION GROUP SNAPSHOT DELAYED (TARGET IS FULL)
+    - name: Prevent external requests for PROTECTION GROUP SNAPSHOT DELAYED (TARGET IS FULL)
+      shell: purealert tag --timeout --no timeout --forcevisible 78
+      register: result
+    - debug: var=result
+
+    #SMI-S SERVICE RESTARTED
+    - name: Prevent external requests for SMI-S SERVICE RESTARTED
+      shell: purealert tag --timeout --no timeout --forcevisible 80
+      register: result
+    - debug: var=result
+
+    #SMI-S SERVICE FAILURE
+    - name: Prevent external requests for SMI-S SERVICE FAILURE
+      shell: purealert tag --timeout --no timeout --forcevisible 82
+      register: result
+    - debug: var=result
+
+    #SMI-S SERVICE CPU FAILURE
+    - name: Prevent external requests for SMI-S SERVICE CPU FAILURE
+      shell: purealert tag --timeout --no timeout --forcevisible 84
+      register: result
+    - debug: var=result
+
+    #ERRORS OCCUR IN RDMAOOPSD
+    - name: Prevent external requests for ERRORS OCCUR IN RDMAOOPSD
+      shell: purealert tag --timeout --no timeout --forcevisible 85
+      register: result
+    - debug: var=result
+
+    #ENVIRONMENTAL TEMPERATURE
+    - name: Prevent external requests for ENVIRONMENTAL TEMPERATURE
+      shell: purealert tag --timeout --no timeout --forcevisible 125
+      register: result
+    - debug: var=result
+
+    #POWER SUPPLY FAILURE
+    - name: Prevent external requests for POWER SUPPLY FAILURE
+      shell: purealert tag --timeout --no timeout --forcevisible 126
+      register: result
+    - debug: var=result
+
+    #NETWORK DAEMON SERVICE FAILURE
+    - name: Prevent external requests for NETWORK DAEMON SERVICE FAILURE
+      shell: purealert tag --timeout --no timeout --forcevisible 128
+      register: result
+    - debug: var=result
+
+    #UNEXPECTED NETWORK DAEMON RESTART
+    - name: Prevent external requests for UNEXPECTED NETWORK DAEMON RESTART
+      shell: purealert tag --timeout --no timeout --forcevisible 129
+      register: result
+    - debug: var=result
+
+    #HIGH FRONTEND LATENCY
+    - name: Prevent external requests for HIGH FRONTEND LATENCY
+      shell: purealert tag --timeout --no timeout --forcevisible 135
+      register: result
+    - debug: var=result
+
+    #UNABLE TO ACCESS NFS SHARE DUE TO INVALID PERMISSIONS SETTINGS
+    - name: Prevent external requests for UNABLE TO ACCESS NFS SHARE DUE TO INVALID PERMISSIONS SETTINGS
+      shell: purealert tag --timeout --no timeout --forcevisible 136
+      register: result
+    - debug: var=result
+
+    #UNABLE TO WRITE TO FULL NFS SHARE
+    - name: Prevent external requests for UNABLE TO WRITE TO FULL NFS SHARE
+      shell: purealert tag --timeout --no timeout --forcevisible 137
+      register: result
+    - debug: var=result
+
+    #UNABLE TO ACCESS NFS SHARE DUE TO CONNECTIVITY ISSUES
+    - name: Prevent external requests for UNABLE TO ACCESS NFS SHARE DUE TO CONNECTIVITY ISSUES
+      shell: purealert tag --timeout --no timeout --forcevisible 138
+      register: result
+    - debug: var=result
+
+    #PUREAPP VM PARTITION FULL ALERT
+    - name: Prevent external requests for PUREAPP VM PARTITION FULL ALERT
+      shell: purealert tag --timeout --no timeout --forcevisible 139
+      register: result
+    - debug: var=result
+
+    #VOLUMES ARE AT X% OF LIMIT
+    - name: Prevent external requests for VOLUMES ARE AT X% OF LIMIT
+      shell: purealert tag --timeout --no timeout --forcevisible 142
+      register: result
+    - debug: var=result
+
+    #PROTECTION GROUPS ARE AT X% OF LIMIT
+    - name: Prevent external requests for PROTECTION GROUPS ARE AT X% OF LIMIT
+      shell: purealert tag --timeout --no timeout --forcevisible 143
+      register: result
+    - debug: var=result
+
+    #PURITY RUN APP CRASHED ALERT
+    - name: Prevent external requests for PURITY RUN APP CRASHED ALERT
+      shell: purealert tag --timeout --no timeout --forcevisible 144
+      register: result
+    - debug: var=result
+
+    #THE RESTORING OF {} IS NOT PROGRESSING
+    - name: Prevent external requests for THE RESTORING OF {} IS NOT PROGRESSING
+      shell: purealert tag --timeout --no timeout --forcevisible 145
+      register: result
+    - debug: var=result
+
+    #NPIV SUPPORT TRANSITIONED FROM SUPPORTED TO NOT SUPPORTED
+    - name: Prevent external requests for NPIV SUPPORT TRANSITIONED FROM SUPPORTED TO NOT SUPPORTED
+      shell: purealert tag --timeout --no timeout --forcevisible 150
+      register: result
+    - debug: var=result
+
+    #OFFLOAD: MAX SNAPSHOT LIMIT REACHED
+    - name: Prevent external requests for OFFLOAD MAX SNAPSHOT LIMIT REACHED
+      shell: purealert tag --timeout --no timeout --forcevisible 151
+      register: result
+    - debug: var=result
+
+    #USER ({USER NAME}) DENIED ACCESS DUE TO ROLE MISCONFIGURATION
+    - name: Prevent external requests for USER ({USER NAME}) DENIED ACCESS DUE TO ROLE MISCONFIGURATION
+      shell: purealert tag --timeout --no timeout --forcevisible 155
+      register: result
+    - debug: var=result
+
+    #USER ({USER NAME}) GRANTED REDUCED PERMISSIONS DUE TO ROLE MISCONFIGURATION
+    - name: Prevent external requests for USER ({USER NAME}) GRANTED REDUCED PERMISSIONS DUE TO ROLE MISCONFIGURATION
+      shell: purealert tag --timeout --no timeout --forcevisible 158
+      register: result
+    - debug: var=result
