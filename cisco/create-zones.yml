@@ -7,7 +7,7 @@
 # DIRECTIONS
 # Usage to create multiple fabric zones using A_zones.csv or B_zones.csv file: 
 #     1. create a file called A_zones.csv and B_zones.csv in the same directory as this playbook.
-#     2. Make 3 columns titled "Hostname", "Arrayname", "Array-CT0", "Array-CT1"
+#     2. Make 3 columns titled "Host-Alias", "Arrayname", "Array-CT0-Alias", "Array-CT1-Alias"
 #     3. fill in the values in all columns for all the hosts you want to create.
 #     4. Note: Your switches should have defined vars for "vsanid" and "fabricid".
 
@@ -23,7 +23,7 @@
   hosts: '{{target|default("cisco_mds")}}'
   vars:
     creds:
-      host: "{{ inventory_hostname }}"
+      host: "{{ inventory_Host-Alias }}"
       username: "{{ ansible_user }}"
       password: "{{ ansible_password }}"
       transport: cli #nxapi
@@ -58,13 +58,13 @@
              mode: enhanced
              smart_zoning: yes
              zone:
-                - name: '{{ item.Hostname }}-HB{{ fabricid }}_{{ item.Arrayname }}'
+                - name: '{{ item.Host-Alias }}_{{ item.Arrayname }}'
                   members:
                      - devtype: initiator
-                     - device-alias: "{{ item.Hostname }}"
+                     - device-alias: "{{ item.Host-Alias }}"
                      - devtype: target
-                     - device-alias: "{{ item.Array-CT0 }}"
-                     - device-alias: "{{ item.Array-CT1 }}"
+                     - device-alias: "{{ item.Array-CT0-Alias }}"
+                     - device-alias: "{{ item.Array-CT1-Alias }}"
                     #  - {pwwn: '61:61:62:62:12:12:12:12', remove: True}
                 # - name: zoneB
                 #   members:
@@ -75,7 +75,7 @@
              zoneset:
                  - name: zs_vsan{{ vsanid }}
                    members:
-                      - {name: '{{ item.Hostname }}-HB{{ fabricid }}_{{ item.Arrayname }}'}
+                      - {name: '{{ item.Host-Alias }}_{{ item.Arrayname }}'}
                       # - {name: zoneB}
                       # - {name: zoneC, remove: True}
                    action: activate
@@ -95,24 +95,24 @@
             zoneset:
               - name: zs_vsan{{ vsanid }}
                 members:
-                  - {name: '{{ item.Hostname }}-HB{{ fabricid }}_{{ item.Arrayname }}', remove: True}
+                  - {name: '{{ item.Host-Alias }}_{{ item.Arrayname }}', remove: True}
                       # - {name: zoneB}
                       # - {name: zoneC, remove: True}
                 action: activate
             zone:
-              - name: '{{ item.Hostname }}-HB{{ fabricid }}_{{ item.Arrayname }}'
+              - name: '{{ item.Host-Alias }}_{{ item.Arrayname }}'
                 members:
                   - devtype: initiator
-                  - device-alias: "{{ item.Hostname }}", remove: True}
+                  - device-alias: "{{ item.Host-Alias }}", remove: True}
                   - devtype: target
-                  - device-alias: "{{ item.Array-CT0 }}", remove: True}
-                  - device-alias: "{{ item.Array-CT1 }}", remove: True}
+                  - device-alias: "{{ item.Array-CT0-Alias }}", remove: True}
+                  - device-alias: "{{ item.Array-CT1-Alias }}", remove: True}
                     #  - {pwwn: '61:61:62:62:12:12:12:12', remove: True}
                 # - name: zoneB
                 #   members:
                 #      - {pwwn: '10:11:11:11:11:11:11:11'}
                 #      - {pwwn: '62:62:62:62:21:21:21:21'}
-                - name: '{{ item.Hostname }}-HB{{ fabricid }}_{{ item.Arrayname }}'
+                - name: '{{ item.Host-Alias }}_{{ item.Arrayname }}'
                   remove: True
 
       loop: "{{ {{ fabricid }}_zones_list.list }}"
