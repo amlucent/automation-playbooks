@@ -24,8 +24,8 @@
   vars:
     creds:
       host: "{{ inventory_hostname }}"
-      username: "{{ un }}"
-      password: "{{ pwd }}"
+      username: "{{ ansible_user }}"
+      password: "{{ ansible_password }}"
       transport: cli #nxapi
 
   tasks:

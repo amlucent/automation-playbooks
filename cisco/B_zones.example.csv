@@ -1,4 +1,4 @@
-﻿Hostname,Arrayname,Array-CT0,Array-CT1
+﻿Host-Alias,Arrayname,Array-CT0-Alias,Array-CT1-Alias
 esx-server01,PSFAX01,PSFAX01-CT0-FC1,PSFAX01-CT1-FC1
 esx-server02,PSFAX01,PSFAX01-CT0-FC3,PSFAX01-CT1-FC3
 esx-server03,PSFAX01,PSFAX01-CT0-FC5,PSFAX01-CT1-FC5
