@@ -20,7 +20,7 @@
 
 - name: "##### Creates zones and adds to zoneset on Cisco MDS #####"
   gather_facts: no
-  hosts: '{{target|default("cisco-mds")}}'
+  hosts: '{{target|default("cisco_mds")}}'
   vars:
     creds:
       host: "{{ inventory_hostname }}"

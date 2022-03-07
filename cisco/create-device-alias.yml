@@ -24,12 +24,12 @@
 ---
 - name: "##### Creates and Removes Client Device Alias on Cisco MDS #####"
   gather_facts: no
-  hosts: '{{target|default("cisco-mds")}}'
+  hosts: '{{target|default("cisco_mds")}}'
   vars:
     creds:
       host: "{{ inventory_hostname }}"
-      username: "{{ un }}"
-      password: "{{ pwd }}"
+      username: "{{ ansible_user }}"
+      password: "{{ ansible_password }}"
       transport: cli
   tasks:
 
@@ -43,7 +43,7 @@
       - remove-csv    
       
     - name: Creates Cisco MDS device-alias from device-alias.csv
-      nxos_devicealias:
+      cisco.nxos.nxos_devicealias:
           distribute: yes
           mode: enhanced
           da:
@@ -57,7 +57,7 @@
     - debug: var=result
 
     - name: Removes Cisco MDS device alias from device-alias.csv
-      nxos_devicealias:
+      cisco.nxos.nxos_devicealias:
           distribute: yes
           mode: enhanced
           da:
@@ -70,8 +70,8 @@
       - remove-csv
     - debug: var=result
 
-    - name: Creates Cisco MDS device alias
-      nxos_devicealias:
+    - name: Creates a single device alias on Cisco MDS
+      cisco.nxos.nxos_devicealias:
           distribute: yes
           mode: enhanced
           da:
@@ -84,8 +84,8 @@
       - create-adhoc
     - debug: var=result 
 
-    - name: Removes Cisco MDS device alias
-      nxos_devicealias:
+    - name: Removes a single device alias on Cisco MDS
+      cisco.nxos.nxos_devicealias:
           distribute: yes
           mode: enhanced
           da:
