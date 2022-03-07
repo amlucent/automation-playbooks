@@ -37,10 +37,21 @@
       delegate_to: localhost      
       tags:
       - create-csv
-      - remove-csv  
+      - remove-csv
+
+    - name: Ensure the required vsans exist
+      cisco.nxos.nxos_vsan:
+        vsan:
+        - id: "{{ vsanid }}"
+          name: "{{ vsan_name }}"
+          remove: false
+          suspend: false
+        provider: "{{ creds }}"
+      tags:
+      - create-csv
 
     - name: Create zones from csv file and add zones to active zoneset
-      nxos_zone_zoneset:
+      cisco.nxos.nxos_zone_zoneset:
         provider: "{{ creds }}"
         zone_zoneset_details:
            - vsan: "{{ vsanid }}"
@@ -75,7 +86,7 @@
     - debug: var=result
 
     - name: Removes zones from the zoneset and deletes zones found in zones.csv file
-      nxos_zone_zoneset:
+      cisco.nxos.nxos_zone_zoneset:
         provider: "{{ creds }}"
         zone_zoneset_details:
           - vsan: "{{ vsanid }}"

@@ -1,0 +1,10 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Sets Cohesity Replications #####"
+  hosts: '{{target|default("cohesity")}}'
+  gather_facts: False
+  #become: yes
+
+  tasks:
+      # Sets Cohesity Replications
+    - name: Sets Cohesity cluster replication to data center 1

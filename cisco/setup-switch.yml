@@ -1,0 +1,104 @@
+#!/bin/ansible-playbook
+########################
+
+# DESCRIPTION
+# Performs initial setup of Cisco MDS
+
+# DIRECTIONS
+# Usage to setup a new Cisco MDS switch or to ensure settings are reapplied to an existing switch run:
+# Run ./setup-switch.yml --limit <your_switch_inventory_name> -v
+
+---
+
+- name: "##### Performs initial setup of Cisco MDS #####"
+  gather_facts: no
+  hosts: '{{target|default("cisco-mds")}}'
+  vars:
+    creds:
+      host: "{{ inventory_hostname }}"
+      username: "{{ ansible_user }}"
+      password: "{{ ansible_password }}"
+      transport: cli #nxapi
+
+  tasks:
+
+    - name: Configure hostname and domain-name
+      cisco.nxos.nxos_system:
+        hostname: "{{ switch_name }}"
+        domain_name: example.com
+        provider: "{{ creds }}"
+
+    - name: Configure DNS servers
+      cisco.nxos.nxos_system:
+        name_servers: "{{ dns_servers }}"
+        provider: "{{ creds }}"
+
+    - name: Configure NTP Services
+      cisco.nxos.nxos_ntp:
+        server: "{{ ntp_servers }}"
+        key_id: 32
+        prefer: enabled
+        provider: "{{ creds }}"
+
+    - name: Remove the current motd banner
+      cisco.nxos.nxos_banner:
+        banner: motd
+        state: absent
+        provider: "{{ creds }}"
+
+    - name: Configure the motd banner
+      cisco.nxos.nxos_banner:
+        banner: motd
+        text: "{{ banner_text }}"
+        state: present
+        provider: "{{ creds }}"
+
+    - name: Create new ansible user
+      cisco.nxos.nxos_user:
+        name: ansible
+        sshkey: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+        state: present
+        provider: "{{ creds }}"
+
+    - name: Set ansible users role
+      cisco.nxos.nxos_user:
+        aggregate:
+        - name: ansible
+        role: network-admin
+      state: present
+        provider: "{{ creds }}"
+
+    - name: Ensure npiv feature is enabled
+      cisco.nxos.nxos_feature:
+        feature: npiv
+        state: enabled
+        provider: "{{ creds }}"
+
+    - name: Ensure fport-channel-trunk feature is enabled
+      cisco.nxos.nxos_feature:
+        feature: fport-channel-trunk
+        state: enabled
+        provider: "{{ creds }}"
+
+    - name: run multiple commands on remote nodes
+      cisco.nxos.nxos_command:
+        commands:
+        - configure terminal
+        - callhome
+        - enable
+        - email-contact "{{ groupmailbox }}"
+        - switch-priority 0
+        - transport email reply-to {{ groupmailbox }}
+        - transport email smtp-server "{{ smtp_server }}"
+        - exit
+        - callhome test
+        provider: "{{ creds }}"
+
+    - name: Ensure the required vsans exist
+      cisco.nxos.nxos_vsan:
+        vsan:
+        - id: "{{ vsanid }}"
+          name: "{{ vsanname }}"
+          remove: false
+          suspend: false
+        provider: "{{ creds }}"

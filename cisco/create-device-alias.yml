@@ -13,7 +13,7 @@
 
 # Usage to create multiple device-alias using device-alias.csv file: 
 #     1. create a file called device-alias.csv in the same directory as this playbook.
-#     2. Make 3 columns titled "Hostname", "WWPNA", and "WWPNB"
+#     2. Make 2 columns titled "Alias_Name" and "WWPN"
 #     3. fill in the values in all columns for all the hosts you want to create.
 #
 # Run ./create-device-alias.yml --tags create-csv -v
@@ -47,8 +47,8 @@
           distribute: yes
           mode: enhanced
           da:
-              - { name: '{{ item.Hostname }}_HB{{ fabricid }}', pwwn: '{{ item.WWPN{{ fabricid }} }}'}
-             # - { name: '{{ item.Hostname }}_HB{{ fabricid }}', remove: True}
+              - { name: '{{ item.Alias_Name }}', pwwn: '{{ item.WWPN }}'}
+             # - { name: '{{ item.Alias_Name }}', remove: True}
           provider: "{{ creds }}"          
       loop: "{{ alias_list.list }}"
       register: result
@@ -61,8 +61,8 @@
           distribute: yes
           mode: enhanced
           da:
-             # - { name: '{{ item.Hostname }}_HB{{ fabricid }}', pwwn: '{{ item.WWPN{{ fabricid }} }}'}
-              - { name: '{{ item.Hostname }}_HB{{ fabricid }}', remove: True}
+             # - { name: '{{ item.Alias_Name }}', pwwn: '{{ item.WWPN }}'}
+              - { name: '{{ item.Alias_Name }}', remove: True}
           provider: "{{ creds }}"          
       loop: "{{ alias_list.list }}"
       register: result
