@@ -1,0 +1,79 @@
+#!/bin/ansible-playbook
+########################
+
+# DESCRIPTION
+# Creates and Removes Hosts on Pure Storage FlashArrays
+
+# DIRECTIONS
+# Usage to create a single host
+# Run ./create-hostgroups.yml --tags create-adhoc -e "Hostname=esx-server01,Platform=ESXi,WWPNA=56:2:22:11:22:88:11:67,WWPNB=56:2:22:11:22:88:11:68" -v
+
+# Usage to remove a single host (note, Platform and WWPN/IQN values not required to remove)
+# Run ./create-hostgroups.yml --tags remove-adhoc -e "Hostname=esx-server01" -v
+
+# Usage to create multiple hosts using hosts.csv file: 
+#     1. create a file called hosts.csv in the same directory as this playbook.
+#     2. Make columns titled "Hostname", "Platform", "WWPNA", and "WWPNB" if using FC. A column named IQN for iscsi, or NQN column for NVMe.  Read about "Platform" values here under personaility - https://docs.ansible.com/ansible/latest/collections/purestorage/flasharray/purefa_host_module.html
+#     3. fill in the values in all columns for all the hosts you want to create. 
+#
+# Run ./create-hostgroups.yml --tags create-csv -v
+
+# Usage to remove multiple hosts using hosts.csv file:
+# Run ./create-hostgroups.yml --tags remove-csv -v
+
+---
+- name: "##### Create and Remove hostgroups on FlashArrays #####"
+  hosts: '{{target|default("purefa")}}'
+  gather_facts: False
+  strategy: free
+
+  # vars_prompt:
+  #   - name: hostname
+  #     prompt: "Enter the hostname. (example: esx-server01):"
+  #     private: no
+  #   - name: platform
+  #     prompt: "Enter the host's platform/personality. (example: esxi, aix, hpux. leave blank for linux and windows):"
+  #     private: no
+  #   - name: wwpna
+  #     prompt: "Enter the host's WWPN for A Fabric. (example: 56:2:22:11:22:88:11:67):"
+  #     private: no
+  #   - name: wwpnb
+  #     prompt: "Enter the host's WWPN for B Fabric. (example: 56:2:22:11:22:88:11:67):"
+  #     private: no
+
+  tasks:
+
+    - name: Reading the csv file
+      read_csv:
+        path: hosts.csv
+      register: hosts_list
+      delegate_to: localhost
+      tags:
+      - create-csv
+      - remove-csv
+
+    - name: Creates all host groups from CSV file on FlashArrays
+      delegate_to: localhost
+      purestorage.flasharray.purefa_hg:
+        hostgroup: "{{ item.Host_Group }}"
+        host: "{{ item.Hostname }}"
+        state: present
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_api }}"
+      when: item.Host_Group != ""
+      loop: "{{ hosts_list.list }}" 
+      tags:
+      - create-csv
+
+    - name: Creates all host groups from CSV file on FlashArrays
+      delegate_to: localhost
+      purestorage.flasharray.purefa_hg:
+        hostgroup: "{{ item.Host_Group }}"
+        host: "{{ item.Hostname }}"
+        state: absent
+        fa_url: "{{ fa_url }}"
+        api_token: "{{ fa_api }}"
+      when: item.Host_Group != ""
+      loop: "{{ hosts_list.list }}" 
+      tags:
+      - remove-csv
