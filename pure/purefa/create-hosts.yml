@@ -22,9 +22,24 @@
 # Run ./create-hosts.yml --tags remove-csv -v
 
 ---
-- name: "##### Create hosts on FlashArrays #####"
+- name: "##### Create and Removes hosts on FlashArrays #####"
   hosts: '{{target|default("purefa")}}'
   gather_facts: False
+  strategy: free
+
+  # vars_prompt:
+  #   - name: hostname
+  #     prompt: "Enter the hostname. (example: esx-server01):"
+  #     private: no
+  #   - name: platform
+  #     prompt: "Enter the host's platform/personality. (example: esxi, aix, hpux. leave blank for linux and windows):"
+  #     private: no
+  #   - name: wwpna
+  #     prompt: "Enter the host's WWPN for A Fabric. (example: 56:2:22:11:22:88:11:67):"
+  #     private: no
+  #   - name: wwpnb
+  #     prompt: "Enter the host's WWPN for B Fabric. (example: 56:2:22:11:22:88:11:67):"
+  #     private: no
 
   tasks:
 
@@ -50,7 +65,7 @@
         - "{{ item.WWPNA }}"
         - "{{ item.WWPNB }}"
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       loop: "{{ hosts_list.list }}" 
       tags:
       - create-csv
@@ -61,34 +76,34 @@
         name: "{{ item.Hostname }}"
         state: absent
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       loop: "{{ hosts_list.list }}" 
       tags:
       - remove-csv
-
+  
     - name: Creates a single FC host on FlashArrays
       delegate_to: localhost
       purestorage.flasharray.purefa_host:
-        name: "{{ Hostname }}"
-        personality: "{{ Platform }}"
+        name: "{{ hostname }}"
+        personality: "{{ platform }}"
       #  nqn:
       #  - "{{ NQN }}"
       #  iqn:
       #  - "{{ IQN }}"     
         wwns:
-        - "{{ WWPNA }}"
-        - "{{ WWPNB }}"
+        - "{{ wwpna }}"
+        - "{{ wwpnb }}"
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"        
+        api_token: "{{ fa_api }}"        
       tags:
       - create-adhoc
 
     - name: Removes a single FC host on FlashArrays
       delegate_to: localhost
       purestorage.flasharray.purefa_host:
-        name: "{{{ Hostname }}"
+        name: "{{ hostname }}"
         state: absent
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       tags:
       - remove-adhoc
