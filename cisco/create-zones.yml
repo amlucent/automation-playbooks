@@ -7,7 +7,10 @@
 # DIRECTIONS
 # Usage to create multiple fabric zones using A_zones.csv or B_zones.csv file: 
 #     1. create a file called A_zones.csv and B_zones.csv in the same directory as this playbook.
-#     2. Make 3 columns titled "Host-Alias", "Arrayname", "Array-CT0-Alias", "Array-CT1-Alias"
+#     2. Make 4 columns titled "Host_Alias_Name", "Arrayname", "Array_Alias_CT0", "Array_Alias_CT1"
+#         a. "Host_Alias_Name" is the alias of the host initiator.
+#         b. "Arrayname" is the short name for the storage array, not the individual controller names.  Does not need to correspond to an alias.
+#         c. "Array_Alias_CT0" and "Array_Alias_CT1" respectively are the alias names on each controller (CT0=Controller 0, CT1=Controller 1.  Some array manufactures call these "SP" for storage processors or "SC" for storage controller ) for the ports you want to make the targets.  In a highly available setup you should have one port on each controller per zone. This depends upon your cabling strategy, in general I recommend a simple strategy where even FC ports connect to fabric A and odd FC ports connect to fabric B.
 #     3. fill in the values in all columns for all the hosts you want to create.
 #     4. Note: Your switches should have defined vars for "vsanid" and "fabricid".
 
@@ -23,100 +26,187 @@
   hosts: '{{target|default("cisco_mds")}}'
   vars:
     creds:
-      host: "{{ inventory_Host-Alias }}"
-      username: "{{ ansible_user }}"
-      password: "{{ ansible_password }}"
+      host: "{{ inventory_hostname }}"
+      username: "{{ un }}"
+      password: "{{ pwd }}"
       transport: cli #nxapi
 
   tasks:
 
-    - name: Reading the csv file
+    - name: Reading the A_zones.csv file
       read_csv:
-        path: "{{ fabricid }}_zones.csv"
-      register: "{{ fabricid }}_zones_list"
-      delegate_to: localhost      
+        path: A_zones.csv
+      register: A_zones_list
+      delegate_to: localhost
+      when: fabricid == "A"    
       tags:
       - create-csv
       - remove-csv
 
-    - name: Ensure the required vsans exist
-      cisco.nxos.nxos_vsan:
-        vsan:
-        - id: "{{ vsanid }}"
-          name: "{{ vsan_name }}"
-          remove: false
-          suspend: false
-        provider: "{{ creds }}"
+    - name: Reading the B_zones.csv file
+      read_csv:
+        path: B_zones.csv
+      register: B_zones_list
+      delegate_to: localhost
+      when: fabricid == "B"    
       tags:
       - create-csv
+      - remove-csv  
 
-    - name: Create zones from csv file and add zones to active zoneset
+    - name: Create zones from csv file
       cisco.nxos.nxos_zone_zoneset:
         provider: "{{ creds }}"
         zone_zoneset_details:
-           - vsan: "{{ vsanid }}"
-             mode: enhanced
-             smart_zoning: yes
-             zone:
-                - name: '{{ item.Host-Alias }}_{{ item.Arrayname }}'
-                  members:
-                     - devtype: initiator
-                     - device-alias: "{{ item.Host-Alias }}"
-                     - devtype: target
-                     - device-alias: "{{ item.Array-CT0-Alias }}"
-                     - device-alias: "{{ item.Array-CT1-Alias }}"
-                    #  - {pwwn: '61:61:62:62:12:12:12:12', remove: True}
-                # - name: zoneB
-                #   members:
-                #      - {pwwn: '10:11:11:11:11:11:11:11'}
-                #      - {pwwn: '62:62:62:62:21:21:21:21'}
-                # - name: zoneC
-                #   remove: True
-             zoneset:
-                 - name: zs_vsan{{ vsanid }}
-                   members:
-                      - {name: '{{ item.Host-Alias }}_{{ item.Arrayname }}'}
-                      # - {name: zoneB}
-                      # - {name: zoneC, remove: True}
-                   action: activate
-      loop: "{{ {{ fabricid }}_zones_list.list }}"
+        - vsan: "{{ vsanid }}"
+          mode: enhanced
+          smart_zoning: yes
+          zone:
+          - members:
+            - devtype: initiator
+              device_alias: "{{ item.Host_Alias_Name }}"
+            - devtype: target
+              device_alias: "{{ item.Array_Alias_CT0 }}"
+            - devtype: target
+              device_alias: "{{ item.Array_Alias_CT1 }}"
+            name: '{{ item.Host_Alias_Name }}_{{ item.Arrayname }}'
+            remove: no
+      when: fabricid == "A"
+      loop: "{{ A_zones_list.list }}"
       tags:
       - create-csv
-      register: result
-    - debug: var=result
 
-    - name: Removes zones from the zoneset and deletes zones found in zones.csv file
+    - name: Add zones to active zoneset
       cisco.nxos.nxos_zone_zoneset:
         provider: "{{ creds }}"
         zone_zoneset_details:
-          - vsan: "{{ vsanid }}"
-            mode: enhanced
-            smart_zoning: yes
-            zoneset:
-              - name: zs_vsan{{ vsanid }}
-                members:
-                  - {name: '{{ item.Host-Alias }}_{{ item.Arrayname }}', remove: True}
-                      # - {name: zoneB}
-                      # - {name: zoneC, remove: True}
-                action: activate
-            zone:
-              - name: '{{ item.Host-Alias }}_{{ item.Arrayname }}'
-                members:
-                  - devtype: initiator
-                  - device-alias: "{{ item.Host-Alias }}", remove: True}
-                  - devtype: target
-                  - device-alias: "{{ item.Array-CT0-Alias }}", remove: True}
-                  - device-alias: "{{ item.Array-CT1-Alias }}", remove: True}
-                    #  - {pwwn: '61:61:62:62:12:12:12:12', remove: True}
-                # - name: zoneB
-                #   members:
-                #      - {pwwn: '10:11:11:11:11:11:11:11'}
-                #      - {pwwn: '62:62:62:62:21:21:21:21'}
-                - name: '{{ item.Host-Alias }}_{{ item.Arrayname }}'
-                  remove: True
+        - vsan: "{{ vsanid }}"
+          mode: enhanced
+          smart_zoning: yes
+          zoneset:
+          - action: activate
+            members:
+            - name: '{{ item.Host_Alias_Name }}_{{ item.Arrayname }}'
+            name: "{{ zs_name }}"
+            remove: no
+      when: fabricid == "A"
+      loop: "{{ A_zones_list.list }}"
+      tags:
+      - create-csv
 
-      loop: "{{ {{ fabricid }}_zones_list.list }}"
+    - name: Create zones from csv file
+      cisco.nxos.nxos_zone_zoneset:
+        provider: "{{ creds }}"
+        zone_zoneset_details:
+        - vsan: "{{ vsanid }}"
+          mode: enhanced
+          smart_zoning: yes
+          zone:
+          - members:
+            - devtype: initiator
+              device_alias: "{{ item.Host_Alias_Name }}"
+            - devtype: target
+              device_alias: "{{ item.Array_Alias_CT0 }}"
+            - devtype: target
+              device_alias: "{{ item.Array_Alias_CT1 }}"
+            name: '{{ item.Host_Alias_Name }}_{{ item.Arrayname }}'
+            remove: no
+      when: fabricid == "B"
+      loop: "{{ B_zones_list.list }}"
+      tags:
+      - create-csv
+
+    - name: Add zones to active zoneset
+      cisco.nxos.nxos_zone_zoneset:
+        provider: "{{ creds }}"
+        zone_zoneset_details:
+        - vsan: "{{ vsanid }}"
+          mode: enhanced
+          smart_zoning: yes
+          zoneset:
+          - action: activate
+            members:
+            - name: '{{ item.Host_Alias_Name }}_{{ item.Arrayname }}'
+            name: "{{ zs_name }}"
+            remove: no
+      when: fabricid == "B"
+      loop: "{{ B_zones_list.list }}"
+      tags:
+      - create-csv
+
+    - name: Removes zones from the active zoneset
+      cisco.nxos.nxos_zone_zoneset:
+        provider: "{{ creds }}"
+        zone_zoneset_details:
+        - vsan: "{{ vsanid }}"
+          mode: enhanced
+          smart_zoning: yes
+          zoneset:
+          - action: activate
+            members:
+            - name: '{{ item.Host_Alias_Name }}_{{ item.Arrayname }}'
+              remove: True            
+            name: "{{ zs_name }}"
+            remove: no
+      when: fabricid == "A"
+      loop: "{{ A_zones_list.list }}"
       tags:
       - remove-csv
-      register: result
-    - debug: var=result
+
+    - name: Deletes zones found in zones.csv file
+      cisco.nxos.nxos_zone_zoneset:
+        provider: "{{ creds }}"
+        zone_zoneset_details:
+        - vsan: "{{ vsanid }}"
+          mode: enhanced
+          smart_zoning: yes
+          zone:
+          - members:
+            - device_alias: "{{ item.Host_Alias_Name }}"
+            - device_alias: "{{ item.Array_Alias_CT0 }}"
+            - device_alias: "{{ item.Array_Alias_CT1 }}"
+              remove: True
+            name: '{{ item.Host_Alias_Name }}_{{ item.Arrayname }}'
+            remove: True
+      when: fabricid == "A"
+      loop: "{{ A_zones_list.list }}"
+      tags:
+      - remove-csv
+
+    - name: Removes zones from the active zoneset
+      cisco.nxos.nxos_zone_zoneset:
+        provider: "{{ creds }}"
+        zone_zoneset_details:
+        - vsan: "{{ vsanid }}"
+          mode: enhanced
+          smart_zoning: yes
+          zoneset:
+          - action: activate
+            members:
+            - name: '{{ item.Host_Alias_Name }}_{{ item.Arrayname }}'
+              remove: True            
+            name: "{{ zs_name }}"
+            remove: no
+      when: fabricid == "B"
+      loop: "{{ B_zones_list.list }}"
+      tags:
+      - remove-csv
+
+    - name: Deletes zones found in zones.csv file
+      cisco.nxos.nxos_zone_zoneset:
+        provider: "{{ creds }}"
+        zone_zoneset_details:
+        - vsan: "{{ vsanid }}"
+          mode: enhanced
+          smart_zoning: yes
+          zone:
+          - members:
+            - device_alias: "{{ item.Host_Alias_Name }}"
+            - device_alias: "{{ item.Array_Alias_CT0 }}"
+            - device_alias: "{{ item.Array_Alias_CT1 }}"
+              remove: True
+            name: '{{ item.Host_Alias_Name }}_{{ item.Arrayname }}'
+            remove: True
+      when: fabricid == "B"
+      loop: "{{ B_zones_list.list }}"
+      tags:
+      - remove-csv
