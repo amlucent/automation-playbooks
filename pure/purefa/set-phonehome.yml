@@ -10,12 +10,12 @@
       purestorage.flasharray.purefa_phonehome:
         state: absent
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     - name: Disable Remote Assist port
       purestorage.flasharray.purefa_ra:
         state: disable
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost

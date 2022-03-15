@@ -15,4 +15,4 @@
         key: "{{lookup('file', 'example.key') }}"
         passphrase: password
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"

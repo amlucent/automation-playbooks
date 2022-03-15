@@ -31,7 +31,7 @@
         gather_subset:
           - all
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
     - name: display information
       debug:
         msg: "{{ array_info['purefa_info'] }}"
@@ -39,7 +39,7 @@
     - name: collect all inventory
       purestorage.flasharray.purefa_inventory:
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
     - name: show inventory information
       debug:
         msg: "{{ array_info['purefa_info'] }}"

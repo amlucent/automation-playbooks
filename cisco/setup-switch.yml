@@ -25,7 +25,7 @@
     - name: Configure hostname and domain-name
       cisco.nxos.nxos_system:
         hostname: "{{ switch_name }}"
-        domain_name: example.com
+        domain_name: "{{ domain_name }}"
         provider: "{{ creds }}"
 
     - name: Configure DNS servers
@@ -88,7 +88,7 @@
         - enable
         - email-contact "{{ groupmailbox }}"
         - switch-priority 0
-        - transport email reply-to {{ groupmailbox }}
+        - transport email reply-to "{{ groupmailbox }}"
         - transport email smtp-server "{{ smtp_server }}"
         - exit
         - callhome test

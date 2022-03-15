@@ -11,7 +11,7 @@
         role: array_admin
         state: absent
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     - name: Create array_admin directory service role
@@ -20,7 +20,7 @@
         group_base: "{{ ldap_group_base }}"
         group: "{{ ldap_adm_grp }}"
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     - name: Delete existing readonly directory service role
@@ -28,7 +28,7 @@
         role: readonly
         state: absent
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     - name: Create readonly directory service role
@@ -37,5 +37,5 @@
         group_base: "{{ ldap_group_base }}"
         group: "{{ ldap_ro_grp }}"
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost

@@ -17,7 +17,7 @@
       purestorage.flasharray.purefa_ad:
         name: "{{ ansible_hostname }}"
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     - name: Create new AD account
@@ -31,14 +31,14 @@
         kerberos_servers: "{{ ad_kerberos_servers }}"
         directory_servers: "{{ ad_directory_servers }}"
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     # - name: Delete existing directory service
     #   purefa_ds:
     #     state: absent
     #     fa_url: "{{ fa_url }}"
-    #     api_token: "{{ fa_token }}"
+    #     api_token: "{{ fa_api }}"
 
     # - name: Create directory service (enabled) - 5.2.0 or higher
     #   purefa_ds:
@@ -49,14 +49,14 @@
     #     bind_password: "{{ ldap_bind_pass }}"
     #     group_base: "{{ ldap_group_base }}"
     #     fa_url: "{{ fa_url }}"
-    #     api_token: "{{ fa_token }}"
+    #     api_token: "{{ fa_api }}"
 
     # - name: Delete existing array_admin directory service role
     #   purefa_dsrole:
     #     role: array_admin
     #     state: absent
     #     fa_url: "{{ fa_url }}"
-    #     api_token: "{{ fa_token }}"
+    #     api_token: "{{ fa_api }}"
 
     # - name: Create array_admin directory service role
     #   purefa_dsrole:
@@ -64,4 +64,4 @@
     #     group_base: "{{ ldap_group_base }}"
     #     group: "{{ ldap_adm_grp }}"
     #     fa_url: "{{ fa_url }}"
-    #     api_token: "{{ fa_token }}"
+    #     api_token: "{{ fa_api }}"

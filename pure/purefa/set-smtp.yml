@@ -10,7 +10,7 @@
       purestorage.flasharray.purefa_smtp:
         state: absent
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     - name: Set SMTP settings
@@ -21,7 +21,7 @@
         #user: "(( smtp_account }}"
         relay_host: "{{ smtp_relay_host }}"
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     - name: Delete existing email recipient
@@ -29,7 +29,7 @@
         state: absent
         address: "{{ recipient_email }}"
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     - name: Add new email recipient and enable, or enable existing email
@@ -38,5 +38,5 @@
         enabled: true
         state: present
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost

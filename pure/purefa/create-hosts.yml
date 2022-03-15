@@ -80,7 +80,20 @@
       loop: "{{ hosts_list.list }}" 
       tags:
       - remove-csv
-  
+
+    - pause:
+      delegate_to: localhost
+        prompt: "Enter the hostname to create:"
+        echo: true
+      register: hostname
+    - set_fact:
+        ask_user: "{{ hostname.user_input }}"
+      when: hostname == ""
+      tags:
+      - create-adhoc
+      - remove-adhoc
+
+
     - name: Creates a single FC host on FlashArrays
       delegate_to: localhost
       purestorage.flasharray.purefa_host:

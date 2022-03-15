@@ -12,7 +12,7 @@
         protocol: tcp
         state: absent
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     - name: Set array syslog servers
@@ -21,5 +21,5 @@
         address: "{{ syslog_server }}"
         protocol: udp
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost

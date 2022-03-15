@@ -11,7 +11,7 @@
       purestorage.flasharray.purefa_hg:
         hostgroup: SCOP-HG
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
 
     - name: Create new endpoint named SCOP
       delegate_to: localhost
@@ -19,5 +19,5 @@
         name: SCOP-{{ array_name }}-EP
         hgroup: SCOP-HG
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
         state: present

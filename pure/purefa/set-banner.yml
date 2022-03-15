@@ -11,7 +11,7 @@
       purestorage.flasharray.purefa_banner:
         state: absent
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
 
     - name: Set new banner text
       delegate_to: localhost
@@ -19,5 +19,5 @@
         banner: "{{ banner_text }}"
         state: present
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
 

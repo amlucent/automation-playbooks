@@ -42,7 +42,7 @@
         role: array_admin
         api: true
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       register: result
       tags:
       - ansible
@@ -57,7 +57,7 @@
         role: array_admin
         api: true
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       register: result
       tags:
       - vvol      
@@ -70,6 +70,6 @@
         password: "{{ new_passwd|password_hash('sha512') }}"
         old_password: "{{ old_passwd|password_hash('sha512') }}"
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       tags:
       - pure

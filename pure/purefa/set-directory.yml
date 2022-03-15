@@ -18,7 +18,7 @@
     #     role: array_admin
     #     state: absent
     #     fa_url: "{{ fa_url }}"
-    #     api_token: "{{ fa_token }}"
+    #     api_token: "{{ fa_api }}"
     #   delegate_to: localhost
 
     # - name: Create array_admin directory service role
@@ -27,14 +27,14 @@
     #     group_base: "{{ ldap_group_base }}"
     #     group: "{{ ldap_adm_grp }}"
     #     fa_url: "{{ fa_url }}"
-    #     api_token: "{{ fa_token }}"
+    #     api_token: "{{ fa_api }}"
     #   delegate_to: localhost
       
     - name: Delete existing directory service
       purestorage.flasharray.purefa_ds:
         state: absent
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     - name: Create directory service (disabled) - 5.2.0 or higher
@@ -47,14 +47,14 @@
         bind_password: "{{ ldap_bind_pass }}"
         #group_base: "{{ ldap_group_base }}"
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     - name: Enable directory service - 5.2.0 or higher
       purestorage.flasharray.purefa_ds:
         enable: true
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     # Set Active Directory Integration for Admins
@@ -62,7 +62,7 @@
     #   purefa_ad:
     #     name: "{{ ansible_hostname }}"
     #     fa_url: "{{ fa_url }}"
-    #     api_token: "{{ fa_token }}"
+    #     api_token: "{{ fa_api }}"
     #   delegate_to: localhost
 
     # - name: Create new AD account
@@ -76,5 +76,5 @@
     #     kerberos_servers: "{{ ad_kerberos_servers }}"
     #     directory_servers: "{{ ad_directory_servers }}"
     #   fa_url: "{{ fa_url }}"
-    #   api_token: "{{ fa_token }}"
+    #   api_token: "{{ fa_api }}"
     #   delegate_to: localhost

@@ -11,7 +11,7 @@
       purestorage.flasharray.purefa_dns:
         state: absent
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
 
     - name: Set DNS settings
       delegate_to: localhost
@@ -19,4 +19,4 @@
         domain: "{{ dns_domain }}"
         nameservers: "{{ dns_servers }}"
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"

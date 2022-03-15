@@ -13,4 +13,4 @@
         name: "Tony Lucent"
         title: "Storage Systems Engineer"
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"

@@ -17,7 +17,7 @@
       delegate_to: localhost
       purestorage.flasharray.purefa_volume:
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
         name: "{{ volume }}"
         size: "{{ size }}"
         state: present

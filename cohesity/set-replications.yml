@@ -1,6 +1,6 @@
 #!/bin/ansible-playbook
 ---
-- name: "##### Sets Cohesity Replications #####"
+- name: "##### Creates Replications to DR Cohesity Clusters #####"
   hosts: '{{target|default("cohesity")}}'
   gather_facts: False
   #become: yes
@@ -8,3 +8,7 @@
   tasks:
       # Sets Cohesity Replications
     - name: Sets Cohesity cluster replication to data center 1
+      shell: /home/cohesity/software/crux/bin/iris_cli -username "{{ var_cohesity_user }}" -password "{{ var_cohesity_passwd }}" rc add remote-ips="{{ dr1_repl_ip }}" user-name="{{ var_cohesity_user }}" password="{{ var_cohesity_passwd }}" compression-enabled=true all-endpoints-reachable=true
+
+    - name: Sets Cohesity cluster replication to data center 2
+      shell: /home/cohesity/software/crux/bin/iris_cli -username "{{ var_cohesity_user }}" -password "{{ var_cohesity_passwd }}" rc add remote-ips="{{ dr2_repl_ip }}" user-name="{{ var_cohesity_user }}" password="{{ var_cohesity_passwd }}" compression-enabled=true all-endpoints-reachable=true

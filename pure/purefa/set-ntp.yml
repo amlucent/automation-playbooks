@@ -10,7 +10,7 @@
       purestorage.flasharray.purefa_ntp:
         state: absent
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     - name: Set array NTP servers
@@ -18,5 +18,5 @@
         state: present
         ntp_servers: "{{ ntp_servers }}"
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost

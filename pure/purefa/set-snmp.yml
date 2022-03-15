@@ -11,7 +11,7 @@
         name: monitoring1
         state: absent
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost
 
     - name: Create v3 SNMP manager
@@ -22,5 +22,5 @@
         auth_passphrase: "{{ snmp_pass }}"
         host: "{{ snmp_server }}"
         fa_url: "{{ fa_url }}"
-        api_token: "{{ fa_token }}"
+        api_token: "{{ fa_api }}"
       delegate_to: localhost

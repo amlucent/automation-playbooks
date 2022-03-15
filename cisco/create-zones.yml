@@ -51,7 +51,18 @@
       when: fabricid == "B"    
       tags:
       - create-csv
-      - remove-csv  
+      - remove-csv
+
+    - name: Ensure the required vsans exist
+      cisco.nxos.nxos_vsan:
+        vsan:
+        - id: "{{ vsanid }}"
+          name: "{{ vsanname }}"
+          remove: false
+          suspend: false
+        provider: "{{ creds }}"
+      tags:
+      - create-csv
 
     - name: Create zones from csv file
       cisco.nxos.nxos_zone_zoneset:
@@ -93,7 +104,7 @@
       tags:
       - create-csv
 
-    - name: Create zones from csv file
+    - name: Create zones from B_zones.csv file
       cisco.nxos.nxos_zone_zoneset:
         provider: "{{ creds }}"
         zone_zoneset_details:
