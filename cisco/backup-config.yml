@@ -1,0 +1,50 @@
+#!/bin/ansible-playbook
+########################
+
+# DESCRIPTION
+# Creates backup of configuration of Cisco MDS or Nexus Switches
+
+# DIRECTIONS
+# Usage to backup a switch or switches, first filter vars below for "backup_path" and "retention" to values you prefer.
+# Run ./backup-config.yml
+
+# RECOMMENDATION
+# Schedule this script to run via crontab
+---
+- name: "##### Backups up Configuration information for Cisco MDS Switches #####"
+  hosts: '{{target|default("cisco_mds")}}'
+  gather_facts: true
+  
+  vars:
+    backup_path: /data/backup
+    retention: 181d 
+
+  tasks:
+
+    - name: "Display Ansible date_time fact and register"
+      setup:
+        filter: "ansible_date_time"
+        gather_subset: "!all"
+      
+    - name: Backup Cisco MDS Configuration
+      cisco.nxos.nxos_config:
+        backup: yes
+        backup_options:
+          filename: "{{ inventory_hostname }}_backup_{{ ansible_date_time.date }}_{{ ansible_date_time.time }}.cfg"
+          dir_path: "{{ backup_path }}/{{ inventory_hostname }}/"
+
+    - name: Find old config backups to prune
+      delegate_to: localhost
+      find:
+        paths: "{{ backup_path }}"
+        patterns: "*.cfg"
+        age: "{{ retention }}"
+        recurse: yes
+        register: files_to_delete
+
+    - name: Prune old config backups
+      delegate_to: localhost
+      file:
+        path: "{{ backup_path }}"
+        state: absent
+      with_items: "{{ files_to_delete.files }}"
