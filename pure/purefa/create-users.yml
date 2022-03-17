@@ -18,27 +18,37 @@
 - name: "##### Create new users on FlashArrays #####"
   hosts: '{{target|default("purefa")}}'
   gather_facts: False
-  vars_prompt:
-    - name: pure_old_passwd
-      prompt: "Enter the pureuser's current password"
-      private: yes
-    - name: pure_new_passwd
-      prompt: "Enter the pureuser's new password"
-      private: yes
-    - name: vvol_passwd
-      prompt: "Enter the vvol-admin new password"
-      private: yes
-    - name: ansible_passwd
-      prompt: "Enter the ansible-admin new password"
-      private: yes      
+  # vars_prompt:
+  #   - name: pure_old_passwd
+  #     prompt: "Enter the pureuser's current password"
+  #     private: yes
+  #   - name: pure_new_passwd
+  #     prompt: "Enter the pureuser's new password"
+  #     private: yes
+  #   - name: vvol_passwd
+  #     prompt: "Enter the vvol-admin new password"
+  #     private: yes
+  #   - name: ansible_passwd
+  #     prompt: "Enter the ansible-admin new password"
+  #     private: yes
       
   tasks:
 
-    - name: Create new user ansible with API token
+    - pause:
+      delegate_to: localhost
+        prompt: "Enter the ansible-admin's new password"
+        echo: true
+      register: ansible_new
+    - set_fact:
+        ansible_new_passwd: "{{ ansible_new.user_input }}"
+      tags:
+      - ansible
+
+    - name: Create new user ansible-admin with API token
       delegate_to: localhost
       purestorage.flasharray.purefa_user:
         name: ansible-admin
-        password: "{{ ansible_passwd|password_hash('sha512') }}"
+        password: "{{ ansible_new_passwd|password_hash('sha512') }}"
         role: array_admin
         api: true
         fa_url: "{{ fa_url }}"
@@ -46,29 +56,60 @@
       register: result
       tags:
       - ansible
-      # debug:
-      #   msg: "API Token: {{ result['user_info']['user_api'] }}"
+      debug:
+        msg: "API Token: {{ result['user_info']['user_api'] }}"
+
+    - pause:
+      delegate_to: localhost
+        prompt: "Enter the vvol-admin's new password"
+        echo: true
+      register: vvol_new
+    - set_fact:
+        vvol_new_passwd: "{{ vvol_new.user_input }}"
+      tags:
+      - vvol
 
     - name: Create new user vvol-admin with API token
       delegate_to: localhost
       purestorage.flasharray.purefa_user:
         name: vvol-admin
-        password: "{{ vvol_passwd|password_hash('sha512') }}"
+        password: "{{ vvol_new_passwd|password_hash('sha512') }}"
         role: array_admin
         api: true
         fa_url: "{{ fa_url }}"
         api_token: "{{ fa_api }}"
       register: result
+      debug:
+        msg: "API Token: {{ result['user_info']['user_api'] }}"
       tags:
-      - vvol      
-      # debug:
-      #   msg: "API Token: {{ result['user_info']['user_api'] }}"
+      - vvol
 
-    - name: Change password type for existing pureuser account (NOT IDEMPOTENT)
+    - pause:
+      delegate_to: localhost
+        prompt: "Enter the pureuser's current password"
+        echo: true
+      register: pure_old
+    - set_fact:
+        pure_old_passwd: "{{ pure_old.user_input }}"
+      tags:
+      - pure
+
+    - pause:
+      delegate_to: localhost
+        prompt: "Enter the pureuser's new password"
+        echo: true
+      register: pure_new
+    - set_fact:
+        pure_new_passwd: "{{ pure_new.user_input }}"
+      tags:
+      - pure
+
+    - name: Change password for existing pureuser account (NOT IDEMPOTENT)
+      delegate_to: localhost
       purefa_user:
         name: pureuser
-        password: "{{ new_passwd|password_hash('sha512') }}"
-        old_password: "{{ old_passwd|password_hash('sha512') }}"
+        password: "{{ pure_new_passwd }}"
+        old_password: "{{ pure_old_passwd }}"
         fa_url: "{{ fa_url }}"
         api_token: "{{ fa_api }}"
       tags:

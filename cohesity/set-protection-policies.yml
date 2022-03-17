@@ -1,0 +1,10 @@
+#!/bin/ansible-playbook
+---
+- name: "##### Creates Protection Policies and Jobs for Cohesity Clusters #####"
+  hosts: '{{target|default("cohesity")}}'
+  gather_facts: False
+  #become: yes
+
+  tasks:
+  
+    - name: Sets Cohesity cluster replication to data center 1
